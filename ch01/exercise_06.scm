@@ -93,11 +93,11 @@
 (define (main)
   (display "Input a non-negative number: ")
   (let ((num (read)) (init-value 1.0))
-    (if (> num 0)
-      (begin
-        (display "The square root of this number is: ")
-        (display (sqrt-iter init-value num)))
-      (display "This number is negative!")))
+    (cond ((> num 0)
+            (display "The square root of this number is: ")
+            (display (sqrt-iter init-value num)))
+          ((= num 0) (display 0))
+          (else (display "This number is negative!"))))
   (newline))
 
 (main)
