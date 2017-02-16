@@ -42,8 +42,9 @@
           
 ;; Input a positive number and compute its cube root.
 (define (main)
+  (define init-value 1.0)
   (display "Input a real number: ")
-  (let ((num (read)) (init-value 1.0))
+  (let ((num (read)))
     (if (= num 0)
       (display 0)
       (begin

@@ -91,8 +91,9 @@
           
 ;; Input a positive number and square its root.
 (define (main)
+  (define init-value 1.0)
   (display "Input a non-negative number: ")
-  (let ((num (read)) (init-value 1.0))
+  (let ((num (read)))
     (cond ((> num 0)
             (display "The square root of this number is: ")
             (display (sqrt-iter init-value num)))
