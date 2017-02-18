@@ -9,7 +9,9 @@
 ;; numbers and do simple comparison.
 ;;
 
-;; Compute Fibonacci numbers
+;; Compute Fibonacci numbers (linear steps)
+;; There exists an algorithm for computing the Fibonacci numbers in a
+;; logarithmic number of steps. (See Exercise 1.19)
 (define (fib-iter a b count)
   (if (= count 0)
       b
