@@ -1,6 +1,8 @@
 ;; The solution of exercise 1.10
 ;; The following procedure computes a mathematical function called
 ;; Ackermann's function.
+;;
+
 (define (ackermann x y)
   (cond ((= y 0) 0)
         ((= x 0) (* 2 y))
@@ -8,6 +10,7 @@
         (else (ackermann (- x 1)
                          (ackermann x (- y 1))))))
 
+;;
 ;; What are the values of the following expressions?
 ;;
 ;; (ackermann 1 10)
@@ -17,6 +20,7 @@
 ;; According to the given formulas, these expressions are really simple
 ;; to compute. But here we still compute them in scheme.
 ;;
+
 (define (display-newline clause)
   (display clause)
   (newline))
@@ -32,6 +36,7 @@
 (define (g n) (ackermann 1 n))
 (define (h n) (ackermann 2 n))
 
+;;
 ;; Give concise mathematical definitions for the functions computed by the
 ;; procedure f, g and h for positive integer values of n. For example,
 ;; the function k defined as following procedure:
@@ -48,6 +53,7 @@
 ;;
 ;; Compute some examples to check.
 ;;
+
 (define (check-function function n)
   (define cur-num 0)
   (define (output num)

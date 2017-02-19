@@ -9,9 +9,11 @@
 ;; or to describe a procedure. Indeed, it tells us almost nothing about
 ;; how to actually find the square root of a given number. It will not
 ;; help matters to rephrase this definition in pseudo-Lisp:
-;; (define (sqrt x)
-;;   (the y (and (>= y 0)
-;;               (= (square y) x))))
+;; 
+;;     (define (sqrt x)
+;;       (the y (and (>= y 0)
+;;                   (= (square y) x))))
+;;
 ;; This only begs the question.
 ;; -------- (above from SICP)
 ;;
