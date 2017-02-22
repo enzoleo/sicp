@@ -190,7 +190,9 @@
 
 (define (main)
   (display "Compute The smallest divisor.\nInput n: \n")
-  (display (compute-runtime (search-for-next-primes 1000 3)))
+  (display (compute-runtime (search-for-next-primes 1000 3))) (newline)
+  (display (compute-runtime (search-for-next-primes 10000 3))) (newline)
+  (display (compute-runtime (search-for-next-primes 100000 3))) (newline)
   (newline))
 
 (main)
