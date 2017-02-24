@@ -12,7 +12,7 @@
 ;; Since the testing algorithm has order of growth of O(sqrt(n)), you
 ;; should expect that testing for primes around 10,000 should take about
 ;; sqrt(10) times as long as testing for primes around 1000. Do your timing
-;; dataa bear this out? How well do the data for 100,000 and 1,000,000
+;; data bear this out? How well do the data for 100,000 and 1,000,000
 ;; support the sqrt(n) prediction? Is your result compatible with the
 ;; notion that programs on your machine run in time proportional to the
 ;; number of steps required for the computation?
@@ -178,22 +178,25 @@
 ;; [2] racket
 ;;     (define (runtime) (current-milliseconds))
 ;;
+;; In mit-scheme, use (runtime) directly.
+;;
 (define (runtime) (tms:clock (times)))
 
-;; Compute the runtime of @clause
-(define (compute-runtime clause)
-  (clause-runtime clause (runtime)))
-
-(define (clause-runtime clause start-time)
-    clause
-    (- (runtime) start-time))
+;; Compute the runtime of @search-for-next-primes
+(define (compute-runtime n m)
+  (define (clause-runtime start-time)
+    (search-for-next-primes n m)
+    (display "runtime: ")
+    (display (- (runtime) start-time)))
+  (clause-runtime (runtime))
+  (newline))
 
 (define (main)
-  (display "Compute The smallest divisor.\nInput n: \n")
-  (display (compute-runtime (search-for-next-primes 1000 3))) (newline)
-  (display (compute-runtime (search-for-next-primes 10000 3))) (newline)
-  (display (compute-runtime (search-for-next-primes 100000 3))) (newline)
-  (newline))
+  (display "Find The three smallest primes larger than n.\n")
+  (display "Here we set n = 10 ^ 10, 10 ^ 11, 10 ^ 12.\n")
+  (compute-runtime 10000000000 3) (newline)
+  (compute-runtime 100000000000 3) (newline)
+  (compute-runtime 1000000000000 3) (newline))
 
 (main)
 
