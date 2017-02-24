@@ -74,6 +74,12 @@
   (clause-runtime (runtime))
   (newline))
 
+;;
+;; Actually the expectation is not confirmed. Because the runtime is
+;; determined by many factors: the occupation of system resources, the
+;; optimization of interpreter of compiler, etc. We are not able to predict
+;; the runtime of one procedure precisely.
+;;
 (define (main)
   (display "Find The three smallest primes larger than n.\n")
   (display "Here we set n = 10 ^ 10, 10 ^ 11, 10 ^ 12.\n")
