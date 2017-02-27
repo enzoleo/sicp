@@ -136,6 +136,12 @@
 ;; [1.28] > (prime? 561)
 ;;        $1 = #f
 ;;
+;; mit-scheme:
+;; [1.24] 1 ]=> (prime? 561)
+;;        ;Value: #t
+;; [1.28] 1 ]=> (prime? 561)
+;;        ;Value: #f
+;;
 
 (define (main)
   (display "Load this file and use Miller-Rain test.\n")
