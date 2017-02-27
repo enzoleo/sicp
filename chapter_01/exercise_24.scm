@@ -91,8 +91,9 @@
 ;; runtime of one procedure precisely.
 ;;
 (define (main)
-  (display "Find The three smallest primes larger than n.\n")
+  (display "Find the three smallest primes larger than n.\n")
   (display "Here we set n = 10 ^ 10, 10 ^ 11, 10 ^ 12.\n")
+  (display "Loading this file in interactive environment is available.\n")
   (compute-runtime 10000000000 3) (newline)
   (compute-runtime 100000000000 3) (newline)
   (compute-runtime 1000000000000 3) (newline))

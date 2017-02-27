@@ -96,7 +96,7 @@
 ;; overflow.
 ;;
 (define (main)
-  (display "Find The two smallest primes larger than n.\n")
+  (display "Find the two smallest primes larger than n.\n")
   (display "Here we set n = 10 ^ 4, 10 ^ 5, 10 ^ 6.\n")
   (compute-runtime 10000 2) (newline)
   (compute-runtime 100000 2) (newline)

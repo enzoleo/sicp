@@ -83,7 +83,8 @@
 ;; every number no matter it is odd or even.
 ;;
 (define (main)
-  (display "Find The three smallest primes larger than n.\n")
+  (display "Find the three smallest primes larger than n.\n")
+  (display "Try some large numbers and compare the result.\n")
   (display "Here we set n = 10 ^ 10, 10 ^ 11, 10 ^ 12.\n")
   (compute-runtime 1000 3) (newline)
   (compute-runtime 10000 3) (newline)
