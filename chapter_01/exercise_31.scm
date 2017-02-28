@@ -44,9 +44,11 @@
   ;; Ok, and it can increase the computing speed at the same time.
   (define (term m)
     (exact->inexact (square (/ (* m 2) (- (* m 2) 1)))))
-  (define (inc m) (+ m 1))
   (/ (* 8.0
-        (product term 2 inc n))
+        (product term
+                 2
+                 (lambda (x) (+ x 1))
+                 n))
      (* n 2)))
 
 ;; The procedure to compute the value of PI approximately using the famous
@@ -54,9 +56,11 @@
 (define (wallis-pi-rec n)
   (define (term m)
     (exact->inexact (square (/ (* m 2) (- (* m 2) 1)))))
-  (define (inc m) (+ m 1))
   (/ (* 8.0
-        (product-rec term 2 inc n))
+        (product term
+                 2
+                 (lambda (x) (+ x 1))
+                 n))
      (* n 2)))
 
 (define (main)
