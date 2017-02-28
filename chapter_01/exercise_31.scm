@@ -38,12 +38,12 @@
 ;; The procedure to compute the value of PI approximately using the famous
 ;; John-Wallis formula. (This is an iterative process)
 (define (wallis-pi n)
-  ;; Here we use (exact->inexact <>) function to convert the exact rational
-  ;; number to an inexact float number. Because we do not need the computer
-  ;; to compute the exact rational approximate value. Just float number is
-  ;; Ok, and it can increase the computing speed at the same time.
+  ;; Here we convert the exact rational number to an inexact float number.
+  ;; Because we do not need the computer to compute the exact rational
+  ;; approximate value. Just float number is Ok, and it can increase the
+  ;; computing speed at the same time.
   (define (term m)
-    (exact->inexact (square (/ (* m 2) (- (* m 2) 1)))))
+    (square (/ (* m 2.0) (- (* m 2) 1))))
   (/ (* 8.0
         (product term
                  2
