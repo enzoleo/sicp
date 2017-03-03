@@ -18,11 +18,11 @@
   (print (if (and (> b a) (< b (* a b))) b a))
   (print (cond ((= a 4) 6)
                ((= b 4) (+ 6 7 a))
-               (else 25)))
+               (t 25)))
   (print (+ 2 (if (> b a) b a)))
   (print (* (cond ((> a b) a)
                   ((< a b) b)
-                  (else -1))
+                  (t -1))
             (+ a 1))))
 
 (main)

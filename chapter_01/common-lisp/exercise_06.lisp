@@ -56,7 +56,7 @@
 ;;
 ;;     (defun new-if (predicate then-clause else-clause)
 ;;       (cond (predicate then-clause)
-;;             (else else-clause)))
+;;             (t else-clause)))
 ;;
 ;;     (defun sqrt-iter (guess x)
 ;;       (new-if (good-enough? guess x)
@@ -100,7 +100,7 @@
            (format t "The square root of this number is: ")
            (print (sqrt-iter init-value num)))
           ((= num 0) (print 0))
-          (else (print "This number is negative!")))))
+          (t (print "This number is negative!")))))
 
 (main)
 
