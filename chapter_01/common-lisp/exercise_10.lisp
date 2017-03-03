@@ -50,14 +50,24 @@
 ;;
 ;; Compute some examples to check.
 ;;
+;; Notice the following function defined like a Scheme procedure is also
+;; available. However, here we prefer to use some sentences which have more
+;; Common Lisp style. Try some interesting loops here.
+;; 
+;;     (defun compute-fun (function n)
+;;       (defun output (num)
+;;         (if (< num n)
+;;             (progn
+;;               (format t "func(~a)~C = ~a ~%"
+;;                       num #\tab (funcall function num))
+;;               (output (+ num 1)))))
+;;       (output 0))
+;;
 
 (defun compute-fun (function n)
-  (defun output (num)
-    (if (< num n)
-        (progn
-          (format t "func(~a)~C = ~a ~%" num #\tab (funcall function num))
-          (output (+ num 1)))))
-  (output 0))
+  (do ((num 0 (1+ num)))
+      ((>= num n))
+    (format t "func(~a)~C = ~a ~%" num #\tab (funcall function num))))
 
 (defun main ()
   (format t "The results of the given expressions: ~%")
