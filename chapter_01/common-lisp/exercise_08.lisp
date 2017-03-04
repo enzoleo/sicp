@@ -10,7 +10,7 @@
 ;; 
 
 ;; The absolute value of a number
-(defun abs (x)
+(defun fabs (x)
   (if (< x 0) (- x) x))
 
 ;; A guess is improved by the given iteration formula
@@ -28,8 +28,8 @@
 ;; in exercise 1.6 and 1.7 because we need to consider negative numbers for
 ;; all real numbers have cube roots.
 (defun good-enough? (new-guess old-guess)
-  (< (/ (abs (- new-guess old-guess))
-        (abs old-guess)) 0.0001))
+  (< (/ (fabs (- new-guess old-guess))
+        (fabs old-guess)) 0.0001))
 
 ;; The basic strategy as a procedure
 ;; The thought is really simple, as we use recursive in definition

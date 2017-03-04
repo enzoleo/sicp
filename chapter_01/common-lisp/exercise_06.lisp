@@ -26,7 +26,7 @@
   (/ (+ x y) 2))
 
 ;; The absolute value of a number
-(defun abs (x)
+(defun fabs (x)
   (if (< x 0) (- x) x))
 
 ;; A guess is improved by averaging it with the quotient of the radicand
@@ -38,10 +38,10 @@
 ;; give a simple illustration (but it is not really a very good test).
 ;; The idea is to improve the answer until it is close enough so that its
 ;; square differs from the radicand by less than a predetermined tolerance
-;; (here 0.000001 is set)
+;; (here 0.0001 is set)
 ;; See exercise_07.scm to get a better good-enough? test.
 (defun good-enough? (guess x)
-  (< (abs (- (* guess guess) x)) 0.000001))
+  (< (fabs (- (* guess guess) x)) 0.0001))
 
 ;; The basic strategy as a procedure
 ;; The thought is really simple, as we use recursive in definition

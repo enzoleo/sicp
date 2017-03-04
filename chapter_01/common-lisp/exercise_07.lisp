@@ -18,7 +18,7 @@
   (/ (+ x y) 2))
 
 ;; The absolute value of a number
-(defun abs (x)
+(defun fabs (x)
   (if (< x 0) (- x) x))
 
 ;; A guess is improved by averaging it with the quotient of the radicand
@@ -33,8 +33,8 @@
 ;; with the old guess. So we consider the quotient. (here we compare this
 ;; quotient to 0.0001)
 (defun good-enough? (new-guess old-guess)
-  (< (/ (abs (- new-guess old-guess))
-     old-guess) 0.0001))
+  (< (/ (fabs (- new-guess old-guess))
+        old-guess) 0.0001))
 
 ;; The basic strategy as a procedure
 ;; The thought is really simple, as we use recursive in definition
