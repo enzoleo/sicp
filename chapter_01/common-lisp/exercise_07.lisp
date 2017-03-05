@@ -47,14 +47,14 @@
           
 ;; Input a positive number and square its root.
 (defun main ()
-  (defvar init-value 1.0)
-  (format t "Input a non-negative number: ")
-  (let ((num (read)))
-    (cond ((> num 0)
-           (format t "The square root of this number is: ")
-           (print (sqrt-iter init-value num)))
-          ((= num 0) (print 0))
-          (t (print "This number is negative!")))))
+  (let ((init-value 1.0))
+    (format t "Input a non-negative number: ")
+    (let ((num (read)))
+      (cond ((> num 0)
+             (format t "The square root of this number is: ")
+             (print (sqrt-iter init-value num)))
+            ((= num 0) (print 0))
+            (t (print "This number is negative!"))))))
 
 (main)
 

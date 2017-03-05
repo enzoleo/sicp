@@ -85,29 +85,29 @@
 ;;
 
 (defun pascal-compute (vec-buf new-vec-buf max-count)
-  (defvar vec-index 0)
-  (defun add-element (index)
-    (if (and (<= 0 index) (< index max-count))
-        (progn
-          (setf (elt new-vec-buf (+ index 1))
-                (+ (elt vec-buf index)
-                   (elt vec-buf (+ index 1))))
-          (add-element (+ index 1)))))
-  (add-element vec-index))
+  (let ((vec-index 0))
+    (defun add-element (index)
+      (if (and (<= 0 index) (< index max-count))
+          (progn
+            (setf (elt new-vec-buf (+ index 1))
+                  (+ (elt vec-buf index)
+                     (elt vec-buf (+ index 1))))
+            (add-element (+ index 1)))))
+    (add-element vec-index)))
 
 ;; This new procedure computes the number of ways to do count change
 (defun pascal (m n)
-  (defvar pascal-buf (make-array (+ m 1) :initial-element 0))
-  (defvar new-pascal-buf (make-array (+ m 1) :initial-element 0))
-  (defun pascal-compute-itr (vec-buf new-vec-buf counter)
-    (if (<= counter m)
-        (progn
-          (pascal-compute vec-buf new-vec-buf counter)
-          (pascal-compute-itr new-vec-buf vec-buf (+ counter 1)))
-        (elt vec-buf n)))
-  (setf (elt pascal-buf 0) 1)
-  (setf (elt new-pascal-buf 0) 1)
-  (pascal-compute-itr pascal-buf new-pascal-buf 1))
+  (let ((pascal-buf (make-array (+ m 1) :initial-element 0))
+        (new-pascal-buf (make-array (+ m 1) :initial-element 0)))
+    (defun pascal-compute-itr (vec-buf new-vec-buf counter)
+      (if (<= counter m)
+          (progn
+            (pascal-compute vec-buf new-vec-buf counter)
+            (pascal-compute-itr new-vec-buf vec-buf (+ counter 1)))
+          (elt vec-buf n)))
+    (setf (elt pascal-buf 0) 1)
+    (setf (elt new-pascal-buf 0) 1)
+    (pascal-compute-itr pascal-buf new-pascal-buf 1)))
 
 (defun main ()
   (format t "Compute pascal number C(m, n).~%Input m and n: ")

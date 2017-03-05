@@ -20,9 +20,9 @@
 (defun fib (n)
   (fib-iter 1 0 n))
 
-(defvar phi (/ (+ 1 (sqrt 5)) 2))
+(defvar *phi* (/ (+ 1 (sqrt 5)) 2))
 (defun phi-expt (n)
-  (/ (expt phi n) (sqrt 5)))
+  (/ (expt *phi* n) (sqrt 5)))
 
 ;; List the comparison
 (defun comparison-display (n)

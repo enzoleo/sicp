@@ -42,14 +42,14 @@
 
 ;; Input a positive number and square its root.
 (defun main ()
-  (defvar init-value 1.0)
-  (format t "Input a real number: ")
-  (let ((num (read)))
-    (if (= num 0)
-        (print 0)
-        (progn
-         (format t "The square root of this number is: ")
-         (print (curt-iter init-value num))))))
+  (let ((init-value 1.0))
+    (format t "Input a real number: ")
+    (let ((num (read)))
+      (if (= num 0)
+          (print 0)
+          (progn
+            (format t "The cube root of this number is: ")
+            (print (curt-iter init-value num)))))))
 
 (main)
 
