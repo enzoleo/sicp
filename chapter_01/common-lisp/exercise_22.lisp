@@ -49,13 +49,11 @@
 ;;
 
 (defun search-for-primes (lower upper)
-  (defun test-odd-primes (counter max-count)
-    (if (<= counter max-count)
-        (progn
-          (if (prime? counter)
-              (progn
-                (format t "prime: ~d ~%" counter)))
-          (test-odd-primes (+ counter 2) max-count))))
+  (defun test-odd-primes (init-count max-count)
+    (do ((counter init-count (+ 2 counter)))
+        ((> counter max-count))
+      (if (prime? counter)
+          (format t "prime: ~d ~%" counter))))
   ;; Pass odd parameters to test-odd procedure
   (test-odd-primes (if (= 0 (mod lower 2)) (+ lower 1) lower)
                    (if (= 0 (mod upper 2)) (- upper 1) upper)))
@@ -119,11 +117,35 @@
 
 ;; Find the smallest prime that is bigger than n
 (defun next-prime (n)
-  (defun test-prime (counter)
-    (if (prime? counter)
-        counter
-        (test-prime (+ counter 1))))
-  (test-prime (+ n 1)))
+  ;; The next odd number larger than n
+  (let ((init-counter (if (= 0 (mod n 2)) (+ 1 n) (+ 2 n))))
+    (if (< n 2)
+        2
+        (do ((counter init-counter (+ 2 counter)))
+            (nil)
+          (if (prime? counter)
+              (return counter))))))
+
+;;
+;; Find the smallest m primes that are bigger than n
+;; Also use this function to do some comparison. In fact, the runtime to
+;; search the smallest m primes larger than n is quite close using the
+;; 2 functions. The format of `search-for-next-primes` is very simple.
+;; You can use many other loop functions in Common Lisp.
+(defun search-primes-clloop (n m)
+  ;; The next odd number larger than n
+  (let ((init-counter (if (= 0 (mod n 2)) (+ 1 n) (+ 2 n)))
+        (prime-counter 0))
+    (if (< n 2)
+        (progn
+          (format t "prime[~d] ~d ~%" 0 2)
+          (setf prime-counter 1))
+        (do ((counter init-counter (+ 2 counter)))
+            ((>= prime-counter m))
+          (if (prime? counter)
+              (progn
+                (format t "prime[~d] ~d ~%" prime-counter counter)
+                (setf prime-counter (1+ prime-counter))))))))
 
 ;; Find the smallest m primes that are bigger than n
 (defun search-for-next-primes (n m)

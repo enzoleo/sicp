@@ -85,7 +85,7 @@
 (define (main)
   (display "Find the three smallest primes larger than n.\n")
   (display "Try some large numbers and compare the result.\n")
-  (display "Here we set n = 10 ^ 10, 10 ^ 11, 10 ^ 12.\n")
+  (display "Here we set n = 10 ^ 4, 10 ^ 5, 10 ^ 6.\n")
   (compute-runtime 1000 3) (newline)
   (compute-runtime 10000 3) (newline)
   (compute-runtime 100000 3) (newline))
