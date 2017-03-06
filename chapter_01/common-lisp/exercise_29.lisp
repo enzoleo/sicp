@@ -20,47 +20,47 @@
 ;;
 
 ;; Compute cube of a number
-(define (cube x) (* x x x))
+(defun cube (x) (* x x x))
 
 ;; We write a procedure that expresses the concept of summation itself
 ;; rather than only procedures that compute particular sums.
-(define (sum term a next b)
+(defun sum (term a next b)
   (if (> a b)
       0
-      (+ (term a)
-         (sum term (next a) next b))))
+      (+ (funcall term a)
+         (sum term (funcall next a) next b))))
 
 ;; The simpson integral procedure
-(define (simpson f a b n)
+(defun simpson (f a b n)
   (let ((h (/ (- b a) n)))
-    (define (fun-iter k)
-      (f (+ a (* k h))))
-    (define (next m) (+ m 2))
+    (defun fun-iter (k)
+        (funcall f (+ a (* k h))))
+    (defun next (m) (+ m 2))
     (* (/ h 3.0)
-       (+ (f a)
-          (f b)
-          (* (sum fun-iter 1 next (- n 1)) 4)
-          (* (sum fun-iter 2 next (- n 2)) 2)))))
+       (+ (funcall f a)
+          (funcall f b)
+          (* (sum #'fun-iter 1 #'next (- n 1)) 4)
+          (* (sum #'fun-iter 2 #'next (- n 2)) 2)))))
 
 ;; The integral computation procedure above
-(define (integral f a b dx)
+(defun integral (f a b dx)
   (* (sum f
           (+ a (/ dx 2.0))
           (lambda (x) (+ x dx))
           b)
      dx))
 
-(define (main)
-  (display "Load this file and use Simpson formula.\n")
-  (display "We use `cube` function for test.\n")
-  (display "[Original Integral] [dx = 0.01 ] ")
-  (display (integral cube 0 1 0.01)) (newline)
-  (display "[Simpson  Integral] [n  = 100  ] ")
-  (display (simpson cube 0 1 100)) (newline)
-  (display "[Original Integral] [dx = 0.001] ")
-  (display (integral cube 0 1 0.001)) (newline)
-  (display "[Simpson  Integral] [n  = 1000 ] ")
-  (display (simpson cube 0 1 1000)) (newline))
+(defun main ()
+  (format t "Load this file and use Simpson formula. ~%")
+  (format t "We use `cube` function for test. ~%")
+  (format t "[Original Integral] [dx = 0.01 ] ~a ~%"
+          (integral #'cube 0 1 0.01))
+  (format t "[Simpson  Integral] [ n  = 100 ] ~a ~%"
+          (simpson #'cube 0 1 100))
+  (format t "[Original Integral] [dx = 0.001] ~a ~%"
+          (integral #'cube 0 1 0.001))
+  (format t "[Simpson  Integral] [ n  = 1000] ~a ~%"
+          (simpson #'cube 0 1 1000)))
 
 (main)
 
