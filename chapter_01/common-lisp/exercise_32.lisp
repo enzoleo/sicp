@@ -18,65 +18,67 @@
 ;;
 
 ;; The square procedure
-(define (square x) (* x x))
+(defun square (x) (* x x))
 
 ;; The abstract accumulate procedure (iterative and recursive process)
-(define (accumulate combiner null-value term a next b)
-  (define (iter m result)
+(defun accumulate (combiner null-value term a next b)
+  (defun iter (m result)
     (if (> m b)
         result
-        (iter (next m) (combiner result (term m)))))
+        (iter (funcall next m)
+              (funcall combiner result (funcall term m)))))
   (iter a null-value))
 
-(define (accumulate-rec combiner null-value term a next b)
+(defun accumulate-rec (combiner null-value term a next b)
   (if (> a b)
       null-value
-      (combiner (term a)
-                (accumulate-rec combiner null-value
-                                term
-                                (next a) next b))))
+      (funcall combiner
+               (funcall term a)
+               (accumulate-rec combiner
+                               null-value
+                               term
+                               (funcall next a) next b))))
 
 ;; New abstract sum procedure (iterative and recursive process)
 ;; Use accumulate procedure (combiner = "+" procedure)
-(define (sum term a next b)
-  (accumulate + 0 term a next b))
-(define (sum-rec term a next b)
-  (accumulate-rec + 0 term a next b))
+(defun sum (term a next b)
+  (accumulate #'+ 0 term a next b))
+(defun sum-rec (term a next b)
+  (accumulate-rec #'+ 0 term a next b))
 
 ;; New abstract product procedure (iterative and recursive process)
 ;; Use accumulate procedure (combiner = "*" procedure)
-(define (product term a next b)
-  (accumulate * 1 term a next b))
-(define (product-rec term a next b)
-  (accumulate-rec * 1 term a next b))
+(defun product (term a next b)
+  (accumulate #'* 1 term a next b))
+(defun product-rec (term a next b)
+  (accumulate-rec #'* 1 term a next b))
 
 ;; Wallis formula is used to test `product`
-(define (wallis-pi n)
-  (define (term m)
+(defun wallis-pi (n)
+  (defun term (m)
     (/ (- (square m) 1.0) (square m)))
-  (* 4.0 (product term
+  (* 4.0 (product #'term
                   3
                   (lambda (x) (+ x 2))
                   (+ 1 (* 2 n)))))
 
 ;; Leibniz formula is used to test `sum`
-(define (leibniz-pi n)
+(defun leibniz-pi (n)
   (* 8.0
      (sum (lambda (x) (/ 1.0 (* x (+ x 2))))
           1
           (lambda (x) (+ x 4))
           n)))
 
-(define (main)
-  (display "Load this file and use `accumulate` procedure.\n")
-  (display "We use `accumulate` to define `sum` and `product`.\n")
-  (display "Use `sum`, `sum-rec`, `product` and `product-rec`.\n")
-  (display "Test product: [Wallis formula ]: PI = ")
-  (display (wallis-pi 10000000)) (newline)
-  (display "Test sum    : [Leibniz formula]: PI = ")
-  (display (leibniz-pi 10000000)) (newline)
-  (display "(We compute 10 ^ 7 terms in the two tests above)") 
-  (newline))
+(defun main ()
+  (format t "Load this file and use `accumulate` procedure. ~%")
+  (format t "We use `accumulate` to define `sum` and `product`. ~%")
+  (format t "Use `sum`, `sum-rec`, `product` and `product-rec`. ~%")
+  (format t "Test product: [Wallis formula ]: PI = ~a ~%"
+          (wallis-pi 10000000))
+  (format t "Test sum    : [Leibniz formula]: PI = ~a ~%"
+          (leibniz-pi 10000000))
+  (format t "(We compute 10 ^ 7 terms in the two tests above)~%"))
 
 (main)
 
