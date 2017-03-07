@@ -18,80 +18,69 @@
 ;;
 
 ;; The square procedure
-(define (square x) (* x x))
+(defun square (x) (* x x))
 
 ;; New abstract product procedure (iterative process)
-(define (product term a next b)
-  (define (iter m result)
+(defun product (term a next b)
+  (defun iter (m result)
     (if (> m b)
         result
-        (iter (next m) (* result (term m)))))
+        (iter (funcall next m) (* result (funcall term m)))))
   (iter a 1))
 
 ;; New abstract product procedure (recursive process)
-(define (product-rec term a next b)
+(defun product-rec (term a next b)
   (if (> a b)
       1
-      (* (term a)
-         (product-rec term (next a) next b))))
+      (* (funcall term a)
+         (product-rec term (funcall next a) next b))))
 
 ;; The procedure to compute the value of PI approximately using the famous
 ;; John-Wallis formula. (This is an iterative process)
-(define (wallis-pi n)
+(defun wallis-pi (n)
   ;; Here we convert the exact rational number to an inexact float number.
   ;; Because we do not need the computer to compute the exact rational
   ;; approximate value. Just float number is Ok, and it can increase the
   ;; computing speed at the same time.
-  (define (term m)
+  (defun term (m)
     (/ (- (square m) 1.0) (square m)))
-  (* 4.0 (product term
+  (* 4.0 (product #'term
                   3
                   (lambda (x) (+ x 2))
                   (+ 1 (* 2 n)))))
 
 ;; The procedure to compute the value of PI approximately using the famous
 ;; John-Wallis formula. (This is an recursive process)
-(define (wallis-pi-rec n)
-  (define (term m)
+(defun wallis-pi-rec (n)
+  (defun term (m)
     (/ (- (square m) 1.0) (square m)))
-  (* 4.0 (product-rec term
+  (* 4.0 (product-rec #'term
                       3
                       (lambda (x) (+ x 2))
                       (+ 1 (* 2 n)))))
 
 ;;
-;; Actually not every implementation has the procedure `runtime`. You can
-;; use alternatives for different interpreter:
+;; Not every implementation has the procedure `runtime`. You can
+;; use alternatives for different interpreter.
 ;;
-;; [1] guile:
-;;     (define (runtime) (tms:clock (times)))
+;; [SBCL]
+;;     (defun runtime () (get-internal-real-time))
 ;;
-;; [2] racket
-;;     (define (runtime) (current-milliseconds))
-;;
-;; In mit-scheme, use (runtime) directly.
-;;
-(define (runtime) (tms:clock (times)))
+(defun runtime() (get-internal-real-time))
 
 ;; Compute the runtime of @search-for-next-primes
-(define (wallis-runtime n)
-  (define (clause-runtime start-time)
-    (display "PI: ")
-    (display (wallis-pi n))
-    (newline)
-    (display "runtime: ")
-    (display (- (runtime) start-time))
-    (newline))
+(defun wallis-runtime (n)
+  (defun clause-runtime (start-time)
+    (format t "PI: ~a ~%" (wallis-pi n))
+    (format t "runtime: ~a ~%" (- (runtime) start-time)))
   (clause-runtime (runtime)))
 
-(define (main)
-  (display "Load this file and use `wallis-pi` procedure.\n")
-  (display "We compute PI using wallis formula with 1000000 terms.\n")
-  (display "Default: iterative process.\n")
-  (display "Use `wallis-pi-rec` procedure for recursive process.\n")
-  (display "PI = ")
-  (display (wallis-pi 1000000))
-  (newline))
+(defun main ()
+  (format t "Load this file and use `wallis-pi` procedure. ~%")
+  (format t "We compute PI using wallis formula with 1000000 terms. ~%")
+  (format t "Default: iterative process. ~%")
+  (format t "Use `wallis-pi-rec` procedure for recursive process. ~%")
+  (wallis-runtime 1000000))
 
 (main)
 
