@@ -40,6 +40,14 @@
 ;;       (lambda (x)
 ;;         (iter 0 x)))
 ;;
+;; But there exists an interesting thing:
+;;
+;;     (compose (repeated f (- n 1)) f) [ iterative process ]
+;;     (compose f (repeated f (- n 1))) [ recursive process ]
+;;
+;; It is very easy to explain: the process type is determind by the
+;; `compose` procedure.
+;;
 
 (defun repeated (f n)
   (lambda (x)
