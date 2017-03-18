@@ -21,18 +21,12 @@
 ;;
 
 ;; Test a number is a prime or not
+;; Use advanced `loop` in Common Lisp
 (defun prime? (n)
-  ;; Inner nesting procedure
-  ;; Find smallest divisor of n which is in [2, sqrt(n)] 
-  (defun find-divisor (test-divisor)
-    (cond ((> (* test-divisor test-divisor) n) n)
-          ((= 0 (mod n test-divisor)) test-divisor)
-          (t (find-divisor (+ test-divisor 1)))))
-  ;; Only positive integer is able to be prime
-  ;; Particular case: 0 and 1 are not prime
-  (if (<= n 1)
-      nil
-      (= n (find-divisor 2))))
+  (when (> n 1)
+    (loop
+       for factor from 2 to (isqrt n)
+       never (zerop (mod n factor)))))
 
 ;;
 ;; This procedure search all odd primes between lower and upper and display
@@ -105,10 +99,9 @@
     (defun test-odd-primes (init-count max-count)
       (do ((counter init-count (+ 2 counter)))
           ((> counter max-count))
-        (if (prime? counter)
-            (progn
-              (setf (elt vec-buf prime-counter) counter)
-              (setf prime-counter (+ prime-counter 1))))))
+        (when (prime? counter)
+          (setf (elt vec-buf prime-counter) counter)
+          (setf prime-counter (+ prime-counter 1)))))
     
     ;; Pass odd parameters to test-odd procedure
     (test-odd-primes fix-lower fix-upper)
@@ -136,25 +129,22 @@
   ;; The next odd number larger than n
   (let ((init-counter (if (= 0 (mod n 2)) (+ 1 n) (+ 2 n)))
         (prime-counter 0))
-    (if (< n 2)
-        (progn
-          (format t "prime[~d] ~d ~%" 0 2)
-          (setf prime-counter 1))
-        (do ((counter init-counter (+ 2 counter)))
-            ((>= prime-counter m))
-          (if (prime? counter)
-              (progn
-                (format t "prime[~d] ~d ~%" prime-counter counter)
-                (setf prime-counter (1+ prime-counter))))))))
+    (when (< n 2)
+      (format t "prime[~d] ~d ~%" 0 2)
+      (setf prime-counter 1)
+      (do ((counter init-counter (+ 2 counter)))
+          ((>= prime-counter m))
+        (when (prime? counter)
+          (format t "prime[~d] ~d ~%" prime-counter counter)
+          (setf prime-counter (1+ prime-counter)))))))
 
 ;; Find the smallest m primes that are bigger than n
 (defun search-for-next-primes (n m)
   (defun search-count (init-num counter)
-    (if (< counter m)
-        (progn
-          (let ((new-prime (next-prime init-num)))
-          (format t "prime[~d] ~d ~%" counter new-prime)
-          (search-count new-prime (+ counter 1))))))
+    (when (< counter m)
+      (let ((new-prime (next-prime init-num)))
+        (format t "prime[~d] ~d ~%" counter new-prime)
+        (search-count new-prime (+ counter 1)))))
   (search-count n 0))
 
 ;;
@@ -176,11 +166,10 @@
 (defun next-primes-vector (n m)
   (let ((vec-buf (make-array m :initial-element 0)))
     (defun search-count (init-num counter)
-      (if (< counter m)
-          (progn
-            (let ((new-prime (next-prime init-num)))
-              (setf (elt vec-buf counter) new-prime)
-              (search-count new-prime (+ counter 1))))))
+      (when (< counter m)
+        (let ((new-prime (next-prime init-num)))
+          (setf (elt vec-buf counter) new-prime)
+          (search-count new-prime (+ counter 1)))))
     (search-count n 0)
     vec-buf))
 

@@ -56,11 +56,10 @@
 ;; Find the smallest m primes that are bigger than n
 (defun search-for-next-primes (n m)
   (defun search-count (init-num counter)
-    (if (< counter m)
-        (progn
-          (let ((new-prime (next-prime init-num)))
-          (format t "prime[~d] ~d ~%" counter new-prime)
-          (search-count new-prime (+ counter 1))))))
+    (when (< counter m)
+      (let ((new-prime (next-prime init-num)))
+        (format t "prime[~d] ~d ~%" counter new-prime)
+        (search-count new-prime (+ counter 1)))))
   (search-count n 0))
 
 ;;
