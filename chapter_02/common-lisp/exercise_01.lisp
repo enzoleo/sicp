@@ -13,10 +13,14 @@
 (defclass my-rational ()
   ((numer
     :initarg :numer
-    :initform 0)
+    :initform 0
+    :accessor numer
+    :documentation "The numerator")
    (denom
     :initarg :denom
-    :initform 1)))
+    :initform 1
+    :accessor denom
+    :documentation "The denominator")))
 
 ;; Define an :after method specialized on `my-rational` class to add
 ;; custom initialization code.
@@ -33,8 +37,6 @@
     (setf (slot-value rat 'denom) denom)))
 
 ;; Define generic functions
-(defgeneric numer (rat))
-(defgeneric denom (rat))
 (defgeneric add-rat (rat-x rat-y))
 (defgeneric sub-rat (rat-x rat-y))
 (defgeneric mul-rat (rat-x rat-y))
@@ -42,11 +44,6 @@
 (defgeneric equal-rat? (rat-x rat-y))
 
 ;; Define methods
-(defmethod numer ((rat my-rational))
-  (slot-value rat 'numer))
-(defmethod denom ((rat my-rational))
-  (slot-value rat 'denom))
-
 (defmethod add-rat ((rat-x my-rational)
                     (rat-y my-rational))
   (make-instance 'my-rational
