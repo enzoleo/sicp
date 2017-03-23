@@ -8,63 +8,90 @@
 ;; -------- (above from SICP)
 ;;
 
-;; Make a rational number with numerator and denominator
-(defun make-rat (n d)
-  (let* ((g (gcd n d))
-         (numerator (/ n g))
-         (denominator (/ d g)))
-    (if (< denominator 0)
-        (cons (- numerator) (- denominator))
-        (cons numerator denominator))))
+;; Define a new rational class as we already have a rational class by
+;; default. (Here we set the init value equal to 0 / 1)
+(defclass my-rational ()
+  ((numer
+    :initarg :numer
+    :initform 0)
+   (denom
+    :initarg :denom
+    :initform 1)))
+
+;; Define an :after method specialized on `my-rational` class to add
+;; custom initialization code.
+(defmethod initialize-instance :after ((rat my-rational) &key)
+  (let* ((numer (slot-value rat 'numer))
+         (denom (slot-value rat 'denom))
+         (gcdiv (gcd numer denom)))
+    (setf numer (/ numer gcdiv))
+    (setf denom (/ denom gcdiv))
+    (when (< denom 0)
+      (setf denom (- denom))
+      (setf numer (- numer)))
+    (setf (slot-value rat 'numer) numer)
+    (setf (slot-value rat 'denom) denom)))
+
+;; Define generic functions
+(defgeneric numer (rat))
+(defgeneric denom (rat))
+(defgeneric add-rat (rat-x rat-y))
+(defgeneric sub-rat (rat-x rat-y))
+(defgeneric mul-rat (rat-x rat-y))
+(defgeneric div-rat (rat-x rat-y))
+(defgeneric equal-rat? (rat-x rat-y))
+
+;; Define methods
+(defmethod numer ((rat my-rational))
+  (slot-value rat 'numer))
+(defmethod denom ((rat my-rational))
+  (slot-value rat 'denom))
+
+(defmethod add-rat ((rat-x my-rational)
+                    (rat-y my-rational))
+  (make-instance 'my-rational
+                 :numer (+ (* (numer rat-x) (denom rat-y))
+                           (* (numer rat-y) (denom rat-x)))
+                 :denom (* (denom rat-x) (denom rat-y))))
+
+(defmethod sub-rat ((rat-x my-rational)
+                    (rat-y my-rational))
+  (make-instance 'my-rational
+                 :numer (- (* (numer rat-x) (denom rat-y))
+                           (* (numer rat-y) (denom rat-x)))
+                 :denom (* (denom rat-x) (denom rat-y))))
+
+(defmethod mul-rat ((rat-x my-rational)
+                    (rat-y my-rational))
+  (make-instance 'my-rational
+                 :numer (* (numer rat-x) (numer rat-y))
+                 :denom (* (denom rat-x) (denom rat-y))))
+
+(defmethod div-rat ((rat-x my-rational)
+                    (rat-y my-rational))
+  (make-instance 'my-rational
+                 :numer (* (numer rat-x) (denom rat-y))
+                 :denom (* (denom rat-x) (numer rat-y))))
+
+(defmethod equal-rat? ((rat-x my-rational)
+                       (rat-y my-rational))
+  (= (* (numer rat-x) (denom rat-y))
+     (* (numer rat-y) (denom rat-x))))
 
 ;;
-;; Note that we have another choice to define such procedures:
+;; Load this file and use the new defined class `my-rational`. This class
+;; is only used for testing.
 ;;
-;;     (defvar numer #'car)
-;;     (defvar denom #'cdr)
+;; Initialize:
+;;     (defparameter my-rat
+;;                   (make-instance 'my-rational
+;;                                  :numer <init numerator>
+;;                                  :denom <init denominator>))
 ;;
-;; The first definition associates the name make-rat with the value of the
-;; expression cons, which is the primitive procedure that constructs pairs.
-;; Thus make-rat and cons are names for the same primitive constructor.
-;; Defining selectors and constructors in this way is efficient: Instead of
-;; `make-rat` calling cons, make-rat is cons, so there is only one
-;; procedure called, not two, when make-rat is called. On the other hand,
-;; doing this defeats debugging aids that trace procedure calls or put
-;; breakpoints on procedure calls: You may want to watch make-rat being
-;; called, but you certainly don't want to watch every call to cons.
-;; (SICP)
+;; Accessors:
+;;     (numer my-rat)   -> init numerator
+;;     (denom my-rat)   -> init denominator
 ;;
-(defun numer (x) (car x))
-(defun denom (x) (cdr x))
-
-;; Simple operations
-(defun add-rat (x y)
-  (make-rat (+ (* (numer x) (denom y))
-               (* (numer y) (denom x)))
-            (* (denom x) (denom y))))
-(defun sub-rat (x y)
-  (make-rat (- (* (numer x) (denom y))
-               (* (numer y) (denom x)))
-            (* (denom x) (denom y))))
-(defun mul-rat (x y)
-  (make-rat (* (numer x) (numer y))
-            (* (denom x) (denom y))))
-(defun div-rat (x y)
-  (make-rat (* (numer x) (denom y))
-            (* (denom x) (numer y))))
-(defun equal-rat? (x y)
-  (= (* (numer x) (denom y))
-     (* (numer y) (denom x))))
-
 ;;
-;; Actually using the procedure defined above is available. Because the
-;; result of function `gcd` has the same sign with the second argument,
-;; which means the denominator of the result of `make-rat` is always
-;; positive.
-
-(defun main ()
-  (format t "Load this file and use R - rationals ~%"))
-
-(main)
 
 

@@ -1,3 +1,0 @@
-(defclass rational ()
-  (numer
-   denom))
