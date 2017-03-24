@@ -48,24 +48,24 @@
 (defmethod print-point ((point point-2d))
   (format t "PRINT POINT: (~a, ~a) ~%" (x point) (y point)))
 (defmethod print-segment ((seg segment))
-  (let ((start (start seg))
-        (end (end seg)))
+  (with-accessors ((start start)
+                   (end end)) seg
     (format t "START POINT: (~a, ~a)~%" (x start) (y start))
     (format t "END   POINT: (~a, ~a)~%" (x end) (y end))))
 
 ;; Compute the coordinates or midpoint of the given segment
 (defgeneric midpoint-segment (seg))
 (defmethod midpoint-segment ((seg segment))
-  (let* ((start (start seg))
-         (end (end seg))
-         (mid-x (/ (+ (x start)
-                      (x end))
-                   2.0))
-         (mid-y (/ (+ (y start)
-                      (y end))
-                   2.0)))
-    (make-instance 'point-2d
-                   :x mid-x
-                   :y mid-y)))
+  (with-accessors ((start start)
+                   (end end)) seg
+    (let* ((mid-x (/ (+ (x start)
+                        (x end))
+                     2.0))
+           (mid-y (/ (+ (y start)
+                        (y end))
+                     2.0)))
+      (make-instance 'point-2d
+                     :x mid-x
+                     :y mid-y))))
 
   

@@ -25,16 +25,14 @@
 ;; Define an :after method specialized on `my-rational` class to add
 ;; custom initialization code.
 (defmethod initialize-instance :after ((rat my-rational) &key)
-  (let* ((numer (slot-value rat 'numer))
-         (denom (slot-value rat 'denom))
-         (gcdiv (gcd numer denom)))
-    (setf numer (/ numer gcdiv))
-    (setf denom (/ denom gcdiv))
-    (when (< denom 0)
-      (setf denom (- denom))
-      (setf numer (- numer)))
-    (setf (slot-value rat 'numer) numer)
-    (setf (slot-value rat 'denom) denom)))
+  (with-accessors ((tmp-numer numer)
+                   (tmp-denom denom)) rat
+    (let ((gcdiv (gcd tmp-numer tmp-denom)))
+      (setf tmp-numer (/ tmp-numer gcdiv))
+      (setf tmp-denom (/ tmp-denom gcdiv))
+      (when (< tmp-denom 0)
+        (setf (denom rat) (- tmp-denom))
+        (setf (numer rat) (- tmp-numer))))))
 
 ;; Define generic functions
 (defgeneric add-rat (rat-x rat-y))
