@@ -31,7 +31,6 @@
           (lower-bound itv)
           (upper-bound itv)))
 
-;; Define Euclidean distance of 2 points pa and pb
 (defgeneric add-interval (itv-x itv-y))
 (defmethod add-interval ((itv-x interval) (itv-y interval))
   (make-instance 'interval
