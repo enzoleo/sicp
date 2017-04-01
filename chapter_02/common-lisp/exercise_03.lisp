@@ -86,8 +86,10 @@
 (defmethod euclidean-dist ((pa point-2d) (pb point-2d))
   (with-accessors ((pa-x x) (pa-y y)) pa
     (with-accessors ((pb-x x) (pb-y y)) pb
-      (sqrt (+ (square (- pb-x pa-x))
-               (square (- pb-y pa-y)))))))
+      (cond ((= pa-x pb-x) (abs (- pa-y pb-y)))
+            ((= pa-y pb-y) (abs (- pa-x pb-x)))
+            (t (sqrt (+ (square (- pb-x pa-x))
+                        (square (- pb-y pa-y)))))))))
 
 ;; The basic operation on vectors and points
 ;; [1] Plus two vectors and return the sum vector
@@ -109,9 +111,14 @@
      (* (y va) (y vb))))
 
 ;; Compute the length of a vector
-(defgeneric get-length (vec))
+(defgeneric get-length (seg-or-vec))
+(defmethod get-length ((seg segment))
+  (euclidean-dist (start seg) (end seg)))
 (defmethod get-length ((vec vec-2d))
-  (euclidean-dist (start vec) (end vec)))
+  (with-accessors ((x x) (y y)) vec
+    (cond ((= x 0) (abs y))
+          ((= y 0) (abs x))
+          (t (sqrt (+ (square x) (square y)))))))
 
 ;; Compute the area of a parallelogram
 (defgeneric get-area (paral))
@@ -121,5 +128,13 @@
     (abs (- (* (x edge-va) (y edge-vb))
             (* (y edge-va) (x edge-vb))))))
 
+;; Compute the area of a parallelogram
+(defgeneric get-perim (paral))
+(defmethod get-perim ((paral parallelogram))
+  (with-accessors ((edge-va edge-va)
+                   (edge-vb edge-vb)) paral
+    (* (+ (get-length edge-va)
+          (get-length edge-vb))
+       2)))
 
 

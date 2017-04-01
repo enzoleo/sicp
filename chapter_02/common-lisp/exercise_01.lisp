@@ -19,20 +19,35 @@
    (denom
     :initarg :denom
     :initform 1
-    :accessor denom
+    :reader denom
     :documentation "The denominator")))
+
+;; Extend `setf` function for this class
+(defgeneric (setf denom) (new-denom rat))
+(defmethod (setf denom) (new-denom (rat my-rational))
+  (if (= new-denom 0)
+      (error "The denominator cannot be zero!")
+      (setf (slot-value rat 'denom) new-denom)))
 
 ;; Define an :after method specialized on `my-rational` class to add
 ;; custom initialization code.
 (defmethod initialize-instance :after ((rat my-rational) &key)
   (with-accessors ((tmp-numer numer)
                    (tmp-denom denom)) rat
-    (let ((gcdiv (gcd tmp-numer tmp-denom)))
-      (setf tmp-numer (/ tmp-numer gcdiv))
-      (setf tmp-denom (/ tmp-denom gcdiv))
-      (when (< tmp-denom 0)
-        (setf (denom rat) (- tmp-denom))
-        (setf (numer rat) (- tmp-numer))))))
+    (if (= tmp-denom 0)
+        (error "The denominator cannot be zero!")
+        (let ((gcdiv (gcd tmp-numer tmp-denom)))
+          (setf tmp-numer (/ tmp-numer gcdiv))
+          (setf tmp-denom (/ tmp-denom gcdiv))
+          (when (< tmp-denom 0)
+            (setf (denom rat) (- tmp-denom))
+            (setf (numer rat) (- tmp-numer)))))))
+
+;; Define a macro for construction
+(defmacro make-my-rat (new-numer new-denom)
+  `(make-instance 'my-rational
+                  :numer ,new-numer
+                  :denom ,new-denom))
 
 ;; Define generic functions
 (defgeneric add-rat (rat-x rat-y))
@@ -73,6 +88,12 @@
   (= (* (numer rat-x) (denom rat-y))
      (* (numer rat-y) (denom rat-x))))
 
+(defgeneric print-my-rat (rat))
+(defmethod print-my-rat ((rat my-rational))
+  (format t "PRINT RATIONAL: ~a / ~a ~%"
+          (numer rat)
+          (denom rat)))
+
 ;;
 ;; Load this file and use the new defined class `my-rational`. This class
 ;; is only used for testing.
@@ -83,10 +104,20 @@
 ;;                                  :numer <init numerator>
 ;;                                  :denom <init denominator>))
 ;;
+;; Or:
+;;     (defparameter my-rat (make-my-rat <init numerator>
+;;                                       <init denominator>))
+;;
 ;; Accessors:
 ;;     (numer my-rat)   -> init numerator
 ;;     (denom my-rat)   -> init denominator
 ;;
 ;;
+
+
+(defun main ()
+  (format t "Load this file and use `make-my-rational`.~%"))
+
+(main)
 
 
