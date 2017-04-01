@@ -12,13 +12,40 @@
   ((lower-bound
     :initarg :lower-bound
     :initform 0
-    :accessor lower-bound
+    :reader lower-bound
     :documentation "The lower bound")
    (upper-bound
     :initarg :upper-bound
     :initform 1
-    :accessor upper-bound
+    :reader upper-bound
     :documentation "The upper bound")))
+
+;; Extend `setf` function for this class
+(defgeneric (setf upper-bound) (ub itv))
+(defmethod (setf upper-bound) (ub (itv interval))
+  (if (> (lower-bound itv) ub)
+      (error "The lower bound is larger than the upper bound!")
+      (setf (slot-value itv 'upper-bound) ub)))
+
+(defgeneric (setf lower-bound) (lb itv))
+(defmethod (setf lower-bound) (lb (itv interval))
+  (if (< (upper-bound itv) lb)
+      (error "The lower bound is larger than the upper bound!")
+      (setf (slot-value itv 'lower-bound) lb)))
+
+;; Define an :after method specialized on `inter` class to check whether
+;; the :lower-bound is larger than the :upper-bound
+(defmethod initialize-instance :after ((itv interval) &key)
+  (with-accessors ((lb lower-bound)
+                   (ub upper-bound)) itv
+    (if (> lb ub)
+        (error "Illegal construction of class interval."))))
+
+;; Define a macro for construction
+(defmacro make-interval (lb ub)
+  `(make-instance 'interval
+                  :lower-bound ,lb
+                  :upper-bound ,ub))
 
 ;; Define generic functions and new methods
 (defgeneric print-interval (itv))
@@ -69,15 +96,8 @@
 ;; JUST A TEST:
 ;;
 ;; [SBCL]
-;;     (defparameter ix
-;;       (make-instance 'interval
-;;                      :lower-bound 1
-;;                      :upper-bound 5))
-;;
-;;     (defparameter iy
-;;       (make-instance 'interval
-;;                      :lower-bound -1
-;;                      :upper-bound 4))
+;;     (defparameter ix (make-interval 1 5))
+;;     (defparameter iy (make-interval -1 4))
 ;;
 ;; CL-USER> (print-interval (add-interval ix iy))
 ;; PRINT INTERVAL: [0, 9] 
