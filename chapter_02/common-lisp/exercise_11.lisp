@@ -142,35 +142,53 @@
                         :upper-bound (/ 1.0 (lower-bound itv-y))))
         (error "The dividend interval spans zero!"))))
 
+;; Define a macro for testing
+(defmacro test-mul (lb-x ub-x lb-y ub-y)
+  `(print-interval
+    (mul-interval
+     (make-interval ,lb-x ,ub-x)
+     (make-interval ,lb-y ,ub-y))))
+
 ;;
 ;; JUST A TEST:
 ;;
 ;; [SBCL]
-;;     (defparameter ix
-;;       (make-instance 'interval
-;;                      :lower-bound 1
-;;                      :upper-bound 5))
+;;     CL-USER> (test-mul 2 3 5 10)
+;;     PRINT INTERVAL: [10, 30]
 ;;
-;;     (defparameter iy
-;;       (make-instance 'interval
-;;                      :lower-bound -1
-;;                      :upper-bound 4))
+;;     CL-USER> (test-mul 2 3 -5 10)
+;;     PRINT INTERVAL: [-15, 30] 
 ;;
-;; CL-USER> (print-interval (add-interval ix iy))
-;; PRINT INTERVAL: [0, 9] 
+;;     CL-USER> (test-mul 2 3 -10 -1)
+;;     PRINT INTERVAL: [-30, -2] 
 ;;
-;; CL-USER> (print-interval (sub-interval ix iy))
-;; PRINT INTERVAL: [-3, 6]
+;;     CL-USER> (test-mul -2 3 5 10)
+;;     PRINT INTERVAL: [-20, 30] 
 ;;
-;; CL-USER> (print-interval (mul-interval ix iy))
-;; PRINT INTERVAL: [-5, 20] 
-;; 
-;; CL-USER> (print-interval (div-interval iy ix))
-;; PRINT INTERVAL: [-1.0, 4.0]
+;;     CL-USER> (test-mul -2 3 -5 10)
+;;     PRINT INTERVAL: [-20, 30] 
 ;;
-;; CL-USER> (print-interval (div-interval ix iy))
-;; The dividend interval spans zero!
-;; [Condition of type SIMPLE-ERROR]
+;;     CL-USER> (test-mul -2 3 -7 10)
+;;     PRINT INTERVAL: [-21, 30] 
+;;
+;;     CL-USER> (test-mul -2 0.5 -5 10)
+;;     PRINT INTERVAL: [-20, 10] 
+;;
+;;     CL-USER> (test-mul -10 5 -5 1)
+;;     PRINT INTERVAL: [-25, 50] 
+;;
+;;     CL-USER> (test-mul -2 3 -3 -1)
+;;     PRINT INTERVAL: [-9, 6] 
+;;
+;;     CL-USER> (test-mul -3 -2 1 2)
+;;     PRINT INTERVAL: [-6, -2] 
+;;
+;;     CL-USER> (test-mul -3 -2 -1 2)
+;;     PRINT INTERVAL: [-6, 3] 
+;;
+;;     CL-USER> (test-mul -3 -2 -4 -1)
+;;     PRINT INTERVAL: [2, 12] 
+;;
 ;;
 
 (defun main ()
