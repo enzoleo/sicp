@@ -42,12 +42,12 @@
 (defclass interval ()
   ((center
     :initarg :center
-    :initform 0
+    :initform (error "Must supply the center.")
     :reader center
     :documentation "The center of the interval")
    (percent
     :initarg :percent
-    :initform 0
+    :initform (error "Must supply the percent.")
     :reader percent
     :documentation "The percentage tolerance")
    (width
@@ -73,10 +73,14 @@
      (if (plusp ,buf-ctr)
          (progn
            (setf (slot-value itv 'lower-bound) sub-bound-buf)
-           (setf (slot-value itv 'upper-bound) add-bound-buf))
+           (setf (slot-value itv 'upper-bound) add-bound-buf)
+           (setf (slot-value itv 'width)
+                 (/ (- add-bound-buf sub-bound-buf) 2)))
          (progn
            (setf (slot-value itv 'upper-bound) sub-bound-buf)
-           (setf (slot-value itv 'lower-bound) add-bound-buf)))))
+           (setf (slot-value itv 'lower-bound) add-bound-buf)
+           (setf (slot-value itv 'width)
+                 (/ (- sub-bound-buf add-bound-buf) 2))))))
 
 ;; Extend `setf` function for this class
 (defgeneric (setf percent) (new-percent itv))
@@ -87,23 +91,22 @@
       (progn
         (with-accessors ((center center)) itv
           (setf (slot-value itv 'percent) new-percent)
-          (slot-buf-reset new-percent center)
-          (setf (slot-value itv 'width)
-                (* 0.02 new-percent (abs center)))))))
+          (slot-buf-reset new-percent center)))))
 
 (defmethod (setf center) (new-center (itv interval))
-  (with-accessors ((percent percent)) itv
-    (setf (slot-value itv 'center) new-center)
-    (slot-buf-reset percent new-center)
-    (setf (slot-value itv 'width)
-          (* 0.02 percent (abs new-center)))))
+  (if (zerop new-center)
+      (error "Illegal center value!")
+      (with-accessors ((percent percent)) itv
+        (setf (slot-value itv 'center) new-center)
+        (slot-buf-reset percent new-center))))
 
 ;; Define an :after method specialized on `inter` class to check whether
 ;; the :percent is negative.
 (defmethod initialize-instance :after ((itv interval) &key)
   (with-accessors ((percent percent)
                    (center center)) itv
-    (if (> 0 percent)
+    (if (or (> 0 percent)
+            (zerop center))
         (error "Illegal construction of class interval.")
         (slot-buf-reset percent center))))
 
@@ -126,13 +129,158 @@
           (center itv)
           (percent itv)))
 
+;; The definitions of arithmetic operations
+(defgeneric add-interval (itv-x itv-y))
+(defmethod add-interval ((itv-x interval) (itv-y interval))
+  (with-slots ((center-ix center)
+               (percent-ix percent)) itv-x
+    (with-slots ((center-iy center)
+                 (percent-iy percent)) itv-y
+      (if (zerop (+ center-ix center-iy))
+          (error "Illegal interval center (zero).")
+          (make-instance 'interval
+                         :center (+ center-ix center-iy)
+                         :percent (/ (+ (* percent-ix (abs center-ix))
+                                        (* percent-iy (abs center-iy)))
+                                     (* (abs (+ center-ix center-iy))
+                                        1.0)))))))
+
+(defgeneric sub-interval (itv-x itv-y))
+(defmethod sub-interval ((itv-x interval) (itv-y interval))
+  (with-slots ((center-ix center)
+               (percent-ix percent)) itv-x
+    (with-slots ((center-iy center)
+                 (percent-iy percent)) itv-y
+      (if (= center-ix center-iy)
+          (error "Illegal interval center (zero).")
+          (make-instance 'interval
+                         :center (- center-ix center-iy)
+                         :percent (/ (+ (* percent-ix (abs center-ix))
+                                        (* percent-iy (abs center-iy)))
+                                     (* (abs (- center-ix center-iy))
+                                        1.0)))))))
 ;;
-;; The arithmetic operations will be defined later.
-;; This exercise is just for testing.
+;; Honestly, it is quite complicated to write such a function to
+;; implement the multiplication of two intervals with center-percent
+;; expression correctly. If the percentage of error is small, certainly
+;; we can write a simple formula to compute the result of multiplication
+;; under the assumption that the two centers of the given intervals are
+;; both positive. We will show this in exercise 2.13. However, here we
+;; still hold on challenging this problem: how to write a general and
+;; correct formula to compute the multiplication?
+;;
+;; Here we give an option using the lower-bound and upper-bound to
+;; classify the problem into some simple cases.
+;;
+(defgeneric mul-interval (itv-x itv-y))
+(defmethod mul-interval ((itv-x interval) (itv-y interval))
+  (with-slots ((center-ix center)
+               (percent-ix percent)
+               (lb-x lower-bound)
+               (ub-x upper-bound)) itv-x
+    (with-slots ((center-iy center)
+                 (percent-iy percent)
+                 (lb-y lower-bound)
+                 (ub-y upper-bound)) itv-y
+      (cond ((or (and (>= lb-x 0) (>= ub-y 0) (< lb-y 0))
+                 (and (<  ub-x 0) (>= ub-y 0) (< lb-y 0)))
+             (make-interval (* (+ 1 (/ percent-ix 100.0))
+                               center-ix center-iy)
+                            percent-iy))
+            ((or (and (>= lb-y 0) (>= ub-x 0) (< lb-x 0))
+                 (and (<  ub-y 0) (>= ub-x 0) (< lb-x 0)))
+             (make-interval (* (+ 1 (/ percent-iy 100.0))
+                               center-ix center-iy)
+                            percent-ix))
+            ((and (>= ub-y 0) (< lb-y 0)
+                  (>= ub-x 0) (< lb-x 0))
+             (if (< percent-ix percent-iy)
+                 (make-interval (* (+ 1 (/ percent-ix 100.0))
+                                   center-ix center-iy)
+                                percent-iy)
+                 (make-interval (* (+ 1 (/ percent-iy 100.0))
+                                   center-ix center-iy)
+                                percent-ix)))
+            (t
+             (make-interval (* (+ 1 (/ (* percent-ix percent-iy)
+                                       10000.0))
+                               center-ix center-iy)
+                            (/ (* (+ percent-ix percent-iy)
+                                  10000.0)
+                               (+ (* percent-ix
+                                     percent-iy) 10000))))))))
+
+(defgeneric div-interval (itv-x itv-y))
+(defmethod div-interval ((itv-x interval) (itv-y interval))
+  (with-accessors ((ctr-y center)
+                   (pct-y percent)) itv-y
+    (if (< pct-y 100)
+        (mul-interval
+         itv-x
+         (make-instance 'interval
+                        :center  (/ (/ 10000.0 ctr-y)
+                                    (- 10000 (* pct-y pct-y)))
+                        :percent pct-y))
+        (error "The dividend interval spans zero!"))))
+
+;; Define a macro for testing
+(defmacro test-mul (ctr-x pct-x ctr-y pct-y)
+  `(let ((tmp-mul
+          (mul-interval (make-interval ,ctr-x ,pct-x)
+                        (make-interval ,ctr-y ,pct-y))))
+     (print-real-interval tmp-mul)
+     (print-interval tmp-mul)))
+
+;;
+;; Test the following multiplication of intervals
+;; [SBCL]
+;;
+;; CL-USER> (mul-interval-test)
+;; PRINT INTERVAL: [10.000501, 29.999252] 
+;; PRINT INTERVAL: 19.999876 (± 49.99719%) 
+;; PRINT INTERVAL: [-15.0, 30.0] 
+;; PRINT INTERVAL: 7.5 (± 300%) 
+;; PRINT INTERVAL: [-30.0003, -1.9997998] 
+;; PRINT INTERVAL: -16.00005 (± 87.50129%) 
+;; PRINT INTERVAL: [-19.9995, 29.99925] 
+;; PRINT INTERVAL: 4.999875 (± 500%) 
+;; PRINT INTERVAL: [-20.0, 30.0] 
+;; PRINT INTERVAL: 5.0 (± 500%) 
+;; PRINT INTERVAL: [-21.000149, 30.000149] 
+;; PRINT INTERVAL: 4.5 (± 566.67%) 
+;; PRINT INTERVAL: [-20.000248, 10.000124] 
+;; PRINT INTERVAL: -5.000062 (± 300%) 
+;; PRINT INTERVAL: [-25.0, 50.0] 
+;; PRINT INTERVAL: 12.5 (± 300%) 
+;; PRINT INTERVAL: [-9.0, 6.0] 
+;; PRINT INTERVAL: -1.5 (± 500%) 
+;; PRINT INTERVAL: [-5.9998503, -2.0001001] 
+;; PRINT INTERVAL: -3.9999752 (± 49.99719%) 
+;; PRINT INTERVAL: [-6.0, 3.0] 
+;; PRINT INTERVAL: -1.5 (± 300%) 
+;; PRINT INTERVAL: [1.9999999, 12.0] 
+;; PRINT INTERVAL: 7.0 (± 71.42857%) 
+;; NIL
 ;;
 
+(defun mul-interval-test ()
+  (test-mul 2.5 20 7.5 33.33)
+  (test-mul 2.5 20 2.5 300)
+  (test-mul 2.5 20 -5.5 81.82)
+  (test-mul 0.5 500 7.5 33.33)
+  (test-mul 0.5 500 2.5 300)
+  (test-mul 0.5 500 1.5 566.67)
+  (test-mul -0.75 166.67 2.5 300)
+  (test-mul -2.5 300 -2 150)
+  (test-mul 0.5 500 -2 50)
+  (test-mul -2.5 20 1.5 33.33)
+  (test-mul -2.5 20 0.5 300)
+  (test-mul -2.5 20 -2.5 60))
+
 (defun main ()
-  (format t "Load this file and use `make-interval`.~%"))
+  (format t "Load this file and use `make-interval`.~%")
+  (format t "Here we test some intervals.~%")
+  (format t "Use `(mul-interval-test)`.~%"))
 
 (main)
 
