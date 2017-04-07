@@ -169,46 +169,33 @@
 ;; still hold on challenging this problem: how to write a general and
 ;; correct formula to compute the multiplication?
 ;;
-;; Here we give an option using the lower-bound and upper-bound to
-;; classify the problem into some simple cases.
+;; Here we give an available method to classify the problem into three
+;; simple cases.
 ;;
 (defgeneric mul-interval (itv-x itv-y))
 (defmethod mul-interval ((itv-x interval) (itv-y interval))
-  (with-slots ((center-ix center)
-               (percent-ix percent)
-               (lb-x lower-bound)
-               (ub-x upper-bound)) itv-x
-    (with-slots ((center-iy center)
-                 (percent-iy percent)
-                 (lb-y lower-bound)
-                 (ub-y upper-bound)) itv-y
-      (cond ((or (and (>= lb-x 0) (>= ub-y 0) (< lb-y 0))
-                 (and (<  ub-x 0) (>= ub-y 0) (< lb-y 0)))
-             (make-interval (* (+ 1 (/ percent-ix 100.0))
-                               center-ix center-iy)
-                            percent-iy))
-            ((or (and (>= lb-y 0) (>= ub-x 0) (< lb-x 0))
-                 (and (<  ub-y 0) (>= ub-x 0) (< lb-x 0)))
-             (make-interval (* (+ 1 (/ percent-iy 100.0))
-                               center-ix center-iy)
-                            percent-ix))
-            ((and (>= ub-y 0) (< lb-y 0)
-                  (>= ub-x 0) (< lb-x 0))
-             (if (< percent-ix percent-iy)
-                 (make-interval (* (+ 1 (/ percent-ix 100.0))
-                                   center-ix center-iy)
-                                percent-iy)
-                 (make-interval (* (+ 1 (/ percent-iy 100.0))
-                                   center-ix center-iy)
-                                percent-ix)))
-            (t
-             (make-interval (* (+ 1 (/ (* percent-ix percent-iy)
+  (with-slots ((ctr-ix center)
+               (pct-ix percent)) itv-x
+    (with-slots ((ctr-iy center)
+                 (pct-iy percent)) itv-y
+      (cond ((or (and (>= pct-iy 100) (< pct-ix 100))
+                 (and (>= pct-ix 100) (> pct-iy pct-ix)))
+             (make-interval (* (+ 1 (/ pct-ix 100.0))
+                               ctr-ix ctr-iy)
+                            pct-iy))
+            ((and (< pct-ix 100)
+                  (< pct-iy 100))
+             (make-interval (* (+ 1 (/ (* pct-ix pct-iy)
                                        10000.0))
-                               center-ix center-iy)
-                            (/ (* (+ percent-ix percent-iy)
+                               ctr-ix ctr-iy)
+                            (/ (* (+ pct-ix pct-iy)
                                   10000.0)
-                               (+ (* percent-ix
-                                     percent-iy) 10000))))))))
+                               (+ (* pct-ix
+                                     pct-iy) 10000))))
+            (t
+             (make-interval (* (+ 1 (/ pct-iy 100.0))
+                               ctr-ix ctr-iy)
+                            pct-ix))))))
 
 (defgeneric div-interval (itv-x itv-y))
 (defmethod div-interval ((itv-x interval) (itv-y interval))
