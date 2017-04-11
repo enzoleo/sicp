@@ -9,9 +9,13 @@
 ## GitHub repository: https://github.com/luismbo/cl-travis
 ## ----------------------------------------------------------------------
 
+language: common-lisp
 sudo: required
-language: lisp
-
+branches:
+  only:
+    - master
+os:
+  - linux
 env:
   matrix:
     #- LISP=abcl
@@ -37,6 +41,4 @@ install:
     fi
 
 script:
-  - cd chapter02/
-  - cd common-lisp/
-  - cl -e exercise_14.lisp
+  - ./run_test.sh
