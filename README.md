@@ -1,4 +1,5 @@
 # Solutions to SICP
+[![Build Status](https://travis-ci.org/perryleo/sicp.svg?branch=master)](https://travis-ci.org/perryleo/sicp)
 ![License](https://img.shields.io/badge/license-MIT%20License-blue.svg)
 
 Solutions to ***Structure and Interpretation of Computer Programs*** (SICP) exercises in Scheme.

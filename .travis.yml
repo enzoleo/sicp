@@ -1,3 +1,14 @@
+## ----------------------------------------------------------------------
+## SICP (Structure and Interpretation of Computer Programs).
+## Solutions to SICP exercises.
+##
+## This .travis.yml file is used to generate CI for common-lisp version of
+## all solutions. No CI for scheme version in this repository.
+##
+## We use travis-CI scripts for testing Common Lisp software from this
+## GitHub repository: https://github.com/luismbo/cl-travis
+## ----------------------------------------------------------------------
+
 sudo: required
 language: lisp
 
@@ -26,4 +37,6 @@ install:
     fi
 
 script:
-  - cl -e '(load "./chapter02/common-lisp/exercise_14.lisp")'
+  - cd chapter02/
+  - cd common-lisp/
+  - cl -e exercise_14.lisp
