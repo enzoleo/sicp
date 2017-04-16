@@ -48,44 +48,45 @@ class Interval:
         self.center = center
         
         assert percent >= 0, "Negative percent is not allowed!"
-        if center == 0:
-            self.center = 0
-        else:
-            self.percent = percent
+        self.percent = percent
         self.update()
 
     @classmethod
-    def from_bounds(self, lb, ub):
+    def from_bound(self, lb, ub):
         """
         Initialize the interval class.
         You must supply the lower bound and the upper bound.
         """
         assert lb <= ub, "Lower bound is larger than upper bound!"
-        self.lower_bound = lb
-        self.upper_bound = ub
+        assert not (lb + ub == 0 and lb != 0), \
+            "Finite non-zero bounds and zero center!"
+        assert not ((lb == -float('inf') and ub <  float('inf')) \
+                or  (ub ==  float('inf') and lb > -float('inf'))), \
+            "One bound is finite while the other is infinite!"
 
         if ub == float('inf') and lb == -float('inf'):
             # In this case, the upper bound is +inf and the lower bound is
             # -inf, which means the interval is R := (-inf, +inf). Here we
             # simply set the center zero because operation `ub + lb`
             # returns nan.
-            self.center = 0
-            self.percent = float('inf')
+            center = 0
+            percent = float('inf')
+            return Interval(center, percent)
+        elif ub == lb == 0:
+            return Interval(0, 0)
         else:
-            self.center = (ub + lb) / 2
+            center = (ub + lb) / 2
 
         if ub == lb == float('inf') or ub == lb == -float('inf'):
             # In this case, the two bounds are both inf, which means the
             # interval is sactually equivalent to the infinity. Here we
             # simply set the width zero because `ub - lb` returns nan.
-            self.width = 0
+            width = 0
         else:
-            self.width  = (ub - lb) / 2
+            width = (ub - lb) / 2
 
-        if self.center != 0 or (self.center == 0 and self.width == 0):
-            # The other case where center == 0 and width == infty (this
-            # interval is R) is considered above
-            self.percent = abs(self.width / self.center) * 100.0
+        percent = abs(1.0 * width / center) * 100.0
+        return Interval(center, percent)
 
     @classmethod
     def from_number(self, number):
@@ -94,11 +95,9 @@ class Interval:
         Here we create an interval instance whose lower bound equals
         its upper bound.
         """
-        self.center = number
-        self.percent = 0
-        self.width = 0
-        self.lower_bound = number
-        self.upper_bound = number
+        center = number
+        percent = 0
+        return Interval(center, percent)
 
     def update(self):
         """
@@ -107,7 +106,7 @@ class Interval:
         """
         # The center and percent are not allowed to be infty
         # simultaneously.
-        if abs(self.center) == float('inf')
+        if abs(self.center) == float('inf'):
             self.percent = 0
 
         # Updator will not work normally if the center is zero and the
@@ -126,7 +125,7 @@ class Interval:
             self.lower_bound = self.center - self.width
             self.upper_bound = self.center + self.width
         
-    def __add__(self, itv: Interval):
+    def __add__(self, itv):
         """
         Interval Addition
         """
