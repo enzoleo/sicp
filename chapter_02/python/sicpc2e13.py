@@ -1,29 +1,8 @@
-## After debugging her program, Alyssa shows it to a potential user, who
-## complains that her program solves the wrong problem. He wants a program
-## that can deal with numbers represented as a center value and an
-## additive tolerance; for example, he wants to work with intervals such
-## as `3.5 +- 0.15` rather than [3.35, 3.65]. Alyssa returns to her desk
-## and fixes this problem by supplying an alternate constructor and
-## alternate selectors:
-##
-##     (define (make-center-width c w)
-##       (make-interval (- c w) (+ c w)))
-##     (define (center i)
-##       (/ (+ (lower-bound i) (upper-bound i)) 2))
-##     (define (width i)
-##       (/ (- (upper-bound i) (lower-bound i)) 2))
-##
-## Unfortunately, most of Alyssa's users are engineers. Real engineering
-## situations usually involve measurements with only a small uncertainty,
-## measured as the ratio of the width of the interval to the midpoint of
-## the interval. Engineers usually specify percentage tolerances on the
-## parameters of devices, as in the resistor specifications given earlier.
-##
-## The solution of exercise 2.12
-## Define a constructor make-center-percent that takes a center and a
-## percentage tolerance and produces the desired interval. You must also
-## define a selector percent that produces the percentage tolerance for a
-## given interval. The center selector is the same as the one shown above.
+## The solution of exercise 2.13
+## Show that under the assumption of small percentage tolerances there is
+## a simple formula for the approximate percentage tolerance of the
+## product of two intervals in terms of the tolerances of the factors. You
+## may simplify the problem by assuming that all numbers are positive.
 ##
 ## -------- (above from SICP)
 ##
@@ -36,19 +15,6 @@ if sys.version_info[0] < 3:
     # Use new type class
     __metaclass__ = type
 
-##
-## Define the interval class.
-## Here we define a interval class with 5 attributes: center, percent,
-## width, lower-bound and upper-bound, but only @center and @percent is
-## allowed to be modified (or reset) to update the new interval, which is
-## a little different from that in exercise 2.11.
-##
-## To construct the instance of this class, only 2 arguments (@center and
-## @percent) is needed, and the contructor will automatically compute
-## the other attributes. But you can also construct the instance from a
-## number (an interval with the same bounds) or from a pair of its lower
-## and upper bounds.
-##
 class Interval:
 
     # Infinity number only in class Interval
@@ -230,20 +196,8 @@ class Interval:
         if self.width == infty or itv.width == infty:
             return Interval(-infty, infty)
 
-        if itv.percent >= 100 and self.percent < itv.percent:
-            new_center = (1 + self.percent / 100.0) * \
-                         self.center * itv.center
-            return Interval(new_center, itv.percent)
-        elif itv.percent < 100 and self.percent < 100:
-            new_center = (1 + self.percent * itv.percent / 10000.0) * \
-                         self.center * itv.center
-            new_percent = (10000.0 * (self.percent + itv.percent)) / \
-                          (10000.0 + (self.percent * itv.percent))
-            return Interval(new_center, new_percent)
-        else:
-            new_center = (1 + itv.percent / 100.0) * \
-                         self.center * itv.center
-            return Interval(new_center, self.percent)
+        return Interval(self.center  * itv.center, \
+                        self.percent + itv.percent)
 
     def rdiv_interval(self, num):
         """
