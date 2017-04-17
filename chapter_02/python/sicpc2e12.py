@@ -32,7 +32,8 @@ import sys
 
 ## Check the python version
 ## Write different code for different python version
-if sys.version < '3':
+if sys.version_info[0] < 3:
+    # Use new type class
     __metaclass__ = type
 
 class Interval:
@@ -65,8 +66,8 @@ class Interval:
         assert lb <= ub, "Lower bound is larger than upper bound!"
         assert not (lb + ub == 0 and lb != 0), \
             "Finite non-zero bounds and zero center!"
-        assert not ((lb == -infty and ub <  infty) \
-                or  (ub ==  infty and lb > -infty)), \
+        assert not ((lb == -infty and -infty < ub < infty) \
+                or  (ub ==  infty and -infty < lb < infty)), \
             "One bound is finite while the other is infinite!"
 
         if ub == infty and lb == -infty:
@@ -208,6 +209,52 @@ class Interval:
             new_center = (1 + itv.percent / 100.0) * \
                          self.center * itv.center
             return Interval(new_center, self.percent)
+
+    def rdiv_interval(self, num):
+        """
+        An interval divides a real number
+        """
+        # Notice that zero cannot be denominator and one interval spans
+        # zero if and only if its percent >= 100
+        assert self.percent < 100, \
+            "The dividend interval spans zero!"
+
+        if num == self.infty or num == -self.infty:
+            return Interval(num, num)
+        
+        center  = self.center
+        percent = self.percent
+        
+        new_center = 10000.0 * num / \
+                     ((10000.0 - percent * percent) * center)
+        return Interval(new_center, percent)
+
+    def div_interval(self, itv):
+        """
+        An interval divides another interval
+        """
+        # Notice that zero cannot be denominator and one interval spans
+        # zero if and only if its percent >= 100
+        assert itv.percent < 100, \
+            "The dividend interval spans zero!"
+        return self.__mul__(1 / itv)
+        
+    # Here we check the current python version. If the current Python
+    # environment is Python 3.x, we need to overload __rtruediv__ and
+    # __truediv__ instead of __rdiv__ and __div__. However, in Python 2.x,
+    # __rdiv__ and __div__ need to be overloaded to implement division
+    # overloading.
+    #
+    # The old Python 2 `/` operator is replaced by the Python 3 behaviour
+    # with the `from __future__` import, but here we do not import it.
+    # In Python 3, all numeric division with operator `/` results in a
+    # float result while it does not do that in Python 2.
+    if sys.version_info[0] >= 3:
+        __rtruediv__ = rdiv_interval
+        __truediv__  =  div_interval
+    else:
+        __rdiv__ = rdiv_interval
+        __div__  =  div_interval
 
 
     
