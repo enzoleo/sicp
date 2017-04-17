@@ -178,8 +178,7 @@
                (pct-ix percent)) itv-x
     (with-slots ((ctr-iy center)
                  (pct-iy percent)) itv-y
-      (cond ((or (and (>= pct-iy 100) (< pct-ix 100))
-                 (and (>= pct-ix 100) (> pct-iy pct-ix)))
+      (cond ((and (>= pct-iy 100) (> pct-iy pct-ix))
              (make-interval (* (+ 1 (/ pct-ix 100.0))
                                ctr-ix ctr-iy)
                             pct-iy))

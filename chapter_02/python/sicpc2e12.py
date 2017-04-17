@@ -37,6 +37,9 @@ if sys.version < '3':
 
 class Interval:
 
+    # Infinity number only in class Interval
+    infty = float('inf')
+
     # The initialization with two parameters: center and percent.
     # Still allowed initialization with bounds or a number.
     def __init__(self, center, percent):
@@ -57,27 +60,29 @@ class Interval:
         Initialize the interval class.
         You must supply the lower bound and the upper bound.
         """
+        infty = self.infty
+        
         assert lb <= ub, "Lower bound is larger than upper bound!"
         assert not (lb + ub == 0 and lb != 0), \
             "Finite non-zero bounds and zero center!"
-        assert not ((lb == -float('inf') and ub <  float('inf')) \
-                or  (ub ==  float('inf') and lb > -float('inf'))), \
+        assert not ((lb == -infty and ub <  infty) \
+                or  (ub ==  infty and lb > -infty)), \
             "One bound is finite while the other is infinite!"
 
-        if ub == float('inf') and lb == -float('inf'):
+        if ub == infty and lb == -infty:
             # In this case, the upper bound is +inf and the lower bound is
             # -inf, which means the interval is R := (-inf, +inf). Here we
             # simply set the center zero because operation `ub + lb`
             # returns nan.
             center = 0
-            percent = float('inf')
+            percent = infty
             return Interval(center, percent)
         elif ub == lb == 0:
             return Interval(0, 0)
         else:
             center = (ub + lb) / 2
 
-        if ub == lb == float('inf') or ub == lb == -float('inf'):
+        if ub == lb == infty or ub == lb == -infty:
             # In this case, the two bounds are both inf, which means the
             # interval is sactually equivalent to the infinity. Here we
             # simply set the width zero because `ub - lb` returns nan.
@@ -104,31 +109,57 @@ class Interval:
         Update attributes in Interval class.
         Here all these attributes have float datatype
         """
+        infty = self.infty
+        
         # The center and percent are not allowed to be infty
         # simultaneously.
-        if abs(self.center) == float('inf'):
+        if abs(self.center) == infty:
             self.percent = 0
 
         # Updator will not work normally if the center is zero and the
         # percentage is infinity because the value of width is not
         # computable.
-        if self.center == 0 and self.percent == float('inf'):
-            self.width = float('inf')
-            self.lower_bound = -float('inf')
-            self.upper_bound = float('inf')
-        elif abs(self.center) == float('inf'):
-            self.width = 0
-            self.lower_bound = self.center
-            self.upper_bound = self.center
+        if self.center == 0 and self.percent == infty:
+            self.width = infty
+            self.lower_bound = -infty
+            self.upper_bound = infty
         else:
             self.width = abs(self.center) * self.percent / 100.0
             self.lower_bound = self.center - self.width
             self.upper_bound = self.center + self.width
+
+    def __repr__(self):
+        """
+        Print method
+        """
+        # Print all attributes of this interval
+        ostr = "Interval \t[%s, %s]\n" % \
+               (self.lower_bound, self.upper_bound) + \
+               "center   \t%s\npercent  \t%s\nwidth    \t%s" % \
+               (self.center, self.percent, self.width)
+        return ostr
+            
+    def __eq__(self, itv):
+        """
+        Equality determination
+        """
+        # Only two intervals with completely the same attributes are
+        # equal. The attributes of an interval are determined by the two
+        # independent attributes named center and percent.
+        return (self.center  == itv.center and \
+                self.percent == itv.percent)
         
     def __add__(self, itv):
         """
         Interval Addition
         """
+        infty = self.infty
+        
+        # If one addend interval has infinite width, the width of the sum
+        # interval is also infinite
+        if self.width == infty or itv.width == infty:
+            return Interval(-infty, infty)
+            
         new_center = self.center + itv.center
         new_percent = (self.percent * abs(self.center) \
                        + itv.percent * abs(itv.center)) \
@@ -139,12 +170,44 @@ class Interval:
         """
         Interval subtraction
         """
+        infty = self.infty
+        
+        # If the subtractor interval or the minuend interval has infinite
+        # width, the width of the difference interval is also infinite
+        if self.width == infty or itv.width == infty:
+            return Interval(-infty, infty)
+        
         new_center = self.center - itv.center
         new_percent = (self.percent * abs(self.center) \
                        + itv.percent * abs(itv.center)) \
                        / (1.0 * abs(self.center - itv.center))
         return Interval(new_center, new_percent)
 
+    def __mul__(self, itv):
+        """
+        Interval multiplication
+        """
+        infty = self.infty
+
+        # If one of the factor interval has infinite width, the width of
+        # the product interval is also infinite
+        if self.width == infty or itv.width == infty:
+            return Interval(-infty, infty)
+
+        if itv.percent >= 100 and self.percent < itv.percent:
+            new_center = (1 + self.percent / 100.0) * \
+                         self.center * itv.center
+            return Interval(new_center, itv.percent)
+        elif itv.percent < 100 and self.percent < 100:
+            new_center = (1 + self.percent * itv.percent / 10000.0) * \
+                         self.center * itv.center
+            new_percent = (10000.0 * (self.percent + itv.percent)) / \
+                          (10000.0 + (self.percent * itv.percent))
+            return Interval(new_center, new_percent)
+        else:
+            new_center = (1 + itv.percent / 100.0) * \
+                         self.center * itv.center
+            return Interval(new_center, self.percent)
 
 
     
