@@ -1,8 +1,8 @@
-## The solution of exercise 2.11
-## In passing, Ben also cryptically comments: "By testing the signs of
-## the endpoints of the intervals, it is possible to break `mul-interval`
-## into nine cases, only one of which requires more than two
-## multiplications." Rewrite this procedure using Ben's suggestion.
+## The solution of exercise 2.10
+## Ben Bitdiddle, an expert systems programmer, looks over Alyssa's
+## shoulder and comments that it is not clear what it means to divide by
+## an interval that spans zero. Modify Alyssa's code to check for this
+## condition and to signal an error if it occurs.
 ##
 ## -------- (above from SICP)
 ##
@@ -114,35 +114,14 @@ class Interval:
         """
         Interval multiplication
         """
-        lb_x  = self.lower_bound
-        ub_x  = self.upper_bound
-        lb_y  =  itv.lower_bound
-        ub_y  =  itv.upper_bound
+        pll = self.lower_bound * itv.lower_bound
+        pul = self.upper_bound * itv.lower_bound
+        plu = self.lower_bound * itv.upper_bound 
+        puu = self.upper_bound * itv.upper_bound
 
-        # Conditions to do multiplication
-        if lb_x >= 0:
-            if lb_y >= 0:
-                return Interval(lb_x * lb_y, ub_x * ub_y)
-            elif ub_y < 0:
-                return Interval(ub_x * lb_y, lb_x * ub_y)
-            else:
-                return Interval(ub_x * lb_y, ub_x * ub_y)
-        elif ub_x < 0:
-            if lb_y >= 0:
-                return Interval(lb_x * ub_y, ub_x * lb_y)
-            elif ub_y < 0:
-                return Interval(ub_x * ub_y, lb_x * lb_y)
-            else:
-                return Interval(lb_x * ub_y, lb_x * lb_y)
-        else:
-            if lb_y >= 0:
-                return Interval(lb_x * ub_y, ub_x * ub_y)
-            elif ub_y < 0:
-                return Interval(ub_x * lb_y, lb_x * lb_y)
-            else:
-                return Interval(min(ub_x * lb_y, lb_x * ub_y), \
-                                max(lb_x * lb_y, ub_x * ub_y))
-        return Interval(0, 0)
+        lb = min(pll, pul, plu, puu)
+        ub = max(pll, pul, plu, puu)
+        return Interval(lb, ub)
 
     def rdiv_interval(self, num):
         """
