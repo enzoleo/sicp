@@ -39,12 +39,12 @@ if sys.version_info[0] < 3:
 ##
 ## Define the interval class.
 ## Here we define a interval class with 5 attributes: center, percent,
-## width, lower-bound and upper-bound, but only @center and @percent is
+## width, lower-bound and upper-bound, but only @center and @percent are
 ## allowed to be modified (or reset) to update the new interval, which is
 ## a little different from that in exercise 2.11.
 ##
 ## To construct the instance of this class, only 2 arguments (@center and
-## @percent) is needed, and the contructor will automatically compute
+## @percent) are needed, and the contructor will automatically compute
 ## the other attributes. But you can also construct the instance from a
 ## number (an interval with the same bounds) or from a pair of its lower
 ## and upper bounds.
@@ -142,7 +142,7 @@ class Interval:
             self.lower_bound = self.center - self.width
             self.upper_bound = self.center + self.width
 
-    def get_bound(self):
+    def get_bounds(self):
         """
         Return the lower and upper bounds
         """

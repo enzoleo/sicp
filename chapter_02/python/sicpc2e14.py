@@ -135,7 +135,7 @@ class Interval:
             self.lower_bound = self.center - self.width
             self.upper_bound = self.center + self.width
 
-    def get_bound(self):
+    def get_bounds(self):
         """
         Return the lower and upper bounds
         """
