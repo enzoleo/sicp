@@ -51,5 +51,20 @@ class Rational:
         ostr = "%d/%d" % \
                (self.numer, self.denom)
         return ostr
-        
+
+    def __eq__(self, rat):
+        """Equality determination"""
+        return self.numer * rat.denom == self.denom * rat.numer
+
+    def __add__(self, rat):
+        """Addition of rational numbers"""
+        return Rational(self.denom * rat.numer + self.numer * rat.denom,
+                        self.denom * rat.denom)
+
+    def __sub__(self, rat):
+        """Subtraction of rational numbers"""
+        return Rational(self.numer * rat.denom - self.denom * rat.numer,
+                        self.denom * rat.denom)
+
+    
 
