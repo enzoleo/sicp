@@ -27,8 +27,7 @@ class Interval:
 
     # The initialization with two parameters: lower and upper bounds
     def __init__(self, lb, ub):
-        """
-        Initialize the interval class.
+        """Initialize the interval class.
         You must supply the lower and upper bounds of this interval.
         """
         # Notice that you can also import math module and use function
@@ -42,15 +41,11 @@ class Interval:
         self.upper_bound = ub
 
     def get_bounds(self):
-        """
-        Return the lower and upper bounds
-        """
+        """Return the lower and upper bounds"""
         return self.lower_bound, self.upper_bound
 
     def set_bounds(self, bounds):
-        """
-        Reset the center and percent
-        """
+        """Reset the center and percent"""
         assert bounds[0] <= bounds[1], \
             "Lower bound is larger than upper bound!"
         self.lower_bound, self.upper_bound = bounds
@@ -59,18 +54,14 @@ class Interval:
     bounds = property(get_bounds, set_bounds)
 
     def __repr__(self):
-        """
-        Print method
-        """
+        """Print method"""
         # Print all attributes of this interval
         ostr = "Interval \t[%s, %s]" % \
                (self.lower_bound, self.upper_bound)
         return ostr
             
     def __eq__(self, itv):
-        """
-        Equality determination
-        """
+        """Equality determination"""
         # Only two intervals with completely the same attributes are
         # equal. The attributes of an interval are determined by the two
         # independent attributes named @lower_bound and @upper_bound.
@@ -78,9 +69,7 @@ class Interval:
                 self.upper_bound == itv.upper_bound)
         
     def __add__(self, itv):
-        """
-        Interval Addition
-        """
+        """Interval Addition"""
         infty = self.infty
 
         new_lb = self.lower_bound + itv.lower_bound
@@ -94,9 +83,7 @@ class Interval:
         return Interval(new_lb, new_ub)
 
     def __sub__(self, itv):
-        """
-        Interval subtraction
-        """
+        """Interval subtraction"""
         infty = self.infty
         
         new_lb = self.lower_bound - itv.upper_bound
@@ -110,9 +97,7 @@ class Interval:
         return Interval(new_lb, new_ub)
     
     def __mul__(self, itv):
-        """
-        Interval multiplication
-        """
+        """Interval multiplication"""
         pll = self.lower_bound * itv.lower_bound
         pul = self.upper_bound * itv.lower_bound
         plu = self.lower_bound * itv.upper_bound 
@@ -123,9 +108,7 @@ class Interval:
         return Interval(lb, ub)
 
     def rdiv_interval(self, num):
-        """
-        An interval divides a real number
-        """
+        """An interval divides a real number"""
         if num == self.infty or num == -self.infty:
             return Interval(num, num)
         
@@ -138,9 +121,7 @@ class Interval:
         return Interval(0, 0)
 
     def div_interval(self, itv):
-        """
-        An interval divides another interval
-        """
+        """An interval divides another interval"""
         return self.__mul__(1 / itv)
         
     # Here we check the current python version. If the current Python

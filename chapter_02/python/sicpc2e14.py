@@ -50,8 +50,7 @@ class Interval:
     # The initialization with two parameters: center and percent.
     # Still allowed initialization with bounds or a number.
     def __init__(self, center, percent):
-        """
-        Initialize the interval class.
+        """Initialize the interval class.
         You must supply the center and the percent of this interval.
         The other attributes will be computed automatically.
         """
@@ -63,8 +62,7 @@ class Interval:
 
     @classmethod
     def from_bound(self, lb, ub):
-        """
-        Initialize the interval class.
+        """Initialize the interval class.
         You must supply the lower bound and the upper bound.
         """
         infty = self.infty
@@ -102,8 +100,7 @@ class Interval:
 
     @classmethod
     def from_number(self, number):
-        """
-        Initialize the interval class. You must supply the number.
+        """Initialize the interval class. You must supply the number.
         Here we create an interval instance whose lower bound equals
         its upper bound.
         """
@@ -112,8 +109,7 @@ class Interval:
         return Interval(center, percent)
 
     def update(self):
-        """
-        Update attributes in Interval class.
+        """Update attributes in Interval class.
         Here all these attributes have float datatype
         """
         infty = self.infty
@@ -136,21 +132,15 @@ class Interval:
             self.upper_bound = self.center + self.width
 
     def get_bounds(self):
-        """
-        Return the lower and upper bounds
-        """
+        """Return the lower and upper bounds"""
         return self.lower_bound, self.upper_bound
 
     def get_cp(self):
-        """
-        Return the center and percent of the interval
-        """
+        """Return the center and percent of the interval"""
         return self.center, self.percent
 
     def set_cp(self, cp):
-        """
-        Reset the center and percent
-        """
+        """Reset the center and percent"""
         self.center, self.percent = cp
         self.update()
 
@@ -158,9 +148,7 @@ class Interval:
     cp = property(get_cp, set_cp)
 
     def __repr__(self):
-        """
-        Print method
-        """
+        """Print method"""
         # Print all attributes of this interval
         ostr = "Interval \t[%s, %s]\n" % \
                (self.lower_bound, self.upper_bound) + \
@@ -169,9 +157,7 @@ class Interval:
         return ostr
             
     def __eq__(self, itv):
-        """
-        Equality determination
-        """
+        """Equality determination"""
         # Only two intervals with completely the same attributes are
         # equal. The attributes of an interval are determined by the two
         # independent attributes named center and percent.
@@ -179,9 +165,7 @@ class Interval:
                 self.percent == itv.percent)
         
     def __add__(self, itv):
-        """
-        Interval Addition
-        """
+        """Interval Addition"""
         infty = self.infty
         
         # If one addend interval has infinite width, the width of the sum
@@ -196,9 +180,7 @@ class Interval:
         return Interval(new_center, new_percent)
 
     def __sub__(self, itv):
-        """
-        Interval subtraction
-        """
+        """Interval subtraction"""
         infty = self.infty
         
         # If the subtractor interval or the minuend interval has infinite
@@ -213,9 +195,7 @@ class Interval:
         return Interval(new_center, new_percent)
 
     def __mul__(self, itv):
-        """
-        Interval multiplication
-        """
+        """Interval multiplication"""
         infty = self.infty
 
         # If one of the factor interval has infinite width, the width of
@@ -239,9 +219,7 @@ class Interval:
             return Interval(new_center, self.percent)
 
     def rdiv_interval(self, num):
-        """
-        An interval divides a real number
-        """
+        """An interval divides a real number"""
         # Notice that zero cannot be denominator and one interval spans
         # zero if and only if its percent >= 100
         assert self.percent < 100, \
@@ -258,9 +236,7 @@ class Interval:
         return Interval(new_center, percent)
 
     def div_interval(self, itv):
-        """
-        An interval divides another interval
-        """
+        """An interval divides another interval"""
         # Notice that zero cannot be denominator and one interval spans
         # zero if and only if its percent >= 100
         assert itv.percent < 100, \
@@ -285,15 +261,11 @@ class Interval:
         __div__  =  div_interval
 
 def par1(r1, r2):
-    """
-    The formula to compute parallel resistance
-    """
+    """The formula to compute parallel resistance"""
     return (r1 * r2) / (r1 + r2)
 
 def par2(r1, r2):
-    """
-    The formula to compute parallel resistance
-    """
+    """The formula to compute parallel resistance"""
     return (1 / ((1 / r1) + (1 / r2)))
     
 
