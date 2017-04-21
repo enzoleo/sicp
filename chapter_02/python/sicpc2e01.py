@@ -32,6 +32,9 @@ class Rational:
         """Initialize a rational number with numerator and denominator.
         The default rational number is zero (0 / 1).
         """
+        if denom == 0:
+            raise ZeroDivisionError("integer division or modulo by zero")
+        
         self.numer = numer
         self.denom = denom
         self.simplify()
@@ -64,6 +67,11 @@ class Rational:
     def __sub__(self, rat):
         """Subtraction of rational numbers"""
         return Rational(self.numer * rat.denom - self.denom * rat.numer,
+                        self.denom * rat.denom)
+
+    def __mul__(self, rat):
+        """Multiplication of rational numbers"""
+        return Rational(self.numer * rat.numer,
                         self.denom * rat.denom)
 
     
