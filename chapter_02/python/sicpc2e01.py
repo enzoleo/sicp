@@ -27,37 +27,52 @@ def gcd(a, b):
 
 # Define a rational class
 class Rational:
-
-    def __init__(self, numer = 0, denom = 1):
+    
+   def __init__(self, numer = 0, denom = 1):
         """Initialize a rational number with numerator and denominator.
         The default rational number is zero (0 / 1).
         """
         if denom == 0:
             raise ZeroDivisionError("integer division or modulo by zero")
-        
         self.numer = numer
         self.denom = denom
-        self.simplify()
 
     def simplify(self):
-        """Simplify the rational to a proper fraction.
-        """
-        # Compute the greatest common divisor of numerator and denominator
-        factor = gcd(self.numer, self.denom)
-        self.numer /= factor
-        self.denom /= factor
+        """Simplify the rational to a proper fraction."""
+        # Compute the greatest common divisor of numerator and denominator.
+        # If one of the attributes numer and denom does not exist, return.
+        try:
+            factor = gcd(self.numer, self.denom)
+        except AttributeError:
+            return
+
+        # Here we use __dict__ directly, because we cannot use assignment
+        # statements inside method `simplify` (or it will throw recursion
+        # error).
+        if sys.version_info[0] < 3:
+            self.__dict__['numer'] /= factor
+            self.__dict__['denom'] /= factor
+        else:
+            self.__dict__['numer'] = int(self.numer / factor)
+            self.__dict__['denom'] = int(self.denom / factor)
 
     def __repr__(self):
-        """Print method
-        """
+        """Print method"""
         # Print all attributes of this interval
         ostr = "%d/%d" % \
                (self.numer, self.denom)
         return ostr
+    
+    def __setattr__(self, name, value):
+        """Overload attribute set method."""
+        if name == 'denom' and value == 0:
+            raise ZeroDivisionError("integer division or modulo by zero")
+        self.__dict__[name] = value
+        self.simplify()
 
     def __eq__(self, rat):
         """Equality determination"""
-        return self.numer * rat.denom == self.denom * rat.numer
+        return self.numer == rat.numer and self.denom == rat.denom
 
     def __add__(self, rat):
         """Addition of rational numbers"""
@@ -74,5 +89,30 @@ class Rational:
         return Rational(self.numer * rat.numer,
                         self.denom * rat.denom)
 
+    def rdiv_interval(self, num):
+        """A rational divides a rational"""
+        return Rational(num * self.denom, self.numer)
+
+    def div_interval(self, rat):
+        """A rational divides a rational"""
+        return Rational(self.numer * rat.denom, self.denom * rat.numer)
+
+    # Here we check the current python version. If the current Python
+    # environment is Python 3.x, we need to overload __rtruediv__ and
+    # __truediv__ instead of __rdiv__ and __div__. However, in Python 2.x,
+    # __rdiv__ and __div__ need to be overloaded to implement division
+    # overloading.
+    #
+    # The old Python 2 `/` operator is replaced by the Python 3 behaviour
+    # with the `from __future__` import, but here we do not import it.
+    # In Python 3, all numeric division with operator `/` results in a
+    # float result while it does not do that in Python 2.
+    if sys.version_info[0] >= 3:
+        __rtruediv__ = rdiv_interval
+        __truediv__  =  div_interval
+    else:
+        __rdiv__ = rdiv_interval
+        __div__  =  div_interval
+    
     
 
