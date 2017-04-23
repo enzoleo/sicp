@@ -28,7 +28,7 @@ def gcd(a, b):
 # Define a rational class
 class Rational:
     
-   def __init__(self, numer = 0, denom = 1):
+    def __init__(self, numer = 0, denom = 1):
         """Initialize a rational number with numerator and denominator.
         The default rational number is zero (0 / 1).
         """
@@ -45,7 +45,7 @@ class Rational:
             factor = gcd(self.numer, self.denom)
         except AttributeError:
             return
-
+        
         # Here we use __dict__ directly, because we cannot use assignment
         # statements inside method `simplify` (or it will throw recursion
         # error).
@@ -55,6 +55,14 @@ class Rational:
         else:
             self.__dict__['numer'] = int(self.numer / factor)
             self.__dict__['denom'] = int(self.denom / factor)
+
+    @property
+    def numerator(rat):
+        return rat.numer
+
+    @property
+    def denominator(rat):
+        return rat.denom
 
     def __repr__(self):
         """Print method"""
@@ -76,8 +84,12 @@ class Rational:
 
     def __add__(self, rat):
         """Addition of rational numbers"""
-        return Rational(self.denom * rat.numer + self.numer * rat.denom,
-                        self.denom * rat.denom)
+        try:
+            new_rat = Rational(self.denom * rat.numer + \
+                               self.numer * rat.denom,
+                               self.denom * rat.denom)
+        except AttributeError:
+            new_rat = Rational(self.denom 
 
     def __sub__(self, rat):
         """Subtraction of rational numbers"""
