@@ -1,4 +1,4 @@
-## The solution of exercise 2.1
+﻿## The solution of exercise 2.1
 ## Define a better version of make-rat that handles both positive and
 ## negative arguments. Make-rat should normalize the sign so that if the
 ## rational number is positive, both the numerator and denominator are
@@ -9,6 +9,9 @@
 ##
 
 import sys
+import math
+import numbers
+import operator
 
 ## Check the python version
 ## Write different code for different python version
@@ -25,106 +28,145 @@ def gcd(a, b):
         a, b = b, a % b
     return a
 
-# Define a rational class
+# Define a rational class.
+# Notice that all rational numbers can be written as fraction form, so we
+# can construct a rational number with its numerator and denominator.
 class Rational:
+    """This class implements rational numbers.
+
+    In the two-argument form of the constructor, the fraction will do own
+    deduction by itself, which means for example, Rational(10, -15) will 
+    produce a rational number equivalent to -2/3. Both arguments muse be
+    Rational. The numerator defaults to 0 and the denominator defaults to
+    1 so that Rational() produces zero.
+    """
+
+    # We set the slots == ('__numerator', '__denominator') so only
+    # attributes named numerator and denominator are allowed to be added
+    # to this class. Actually the __numerator and __denominator is not
+    # allowed to be accessed directly outside the class.
+    __slots__ = ('__numerator', '__denominator')
     
     def __init__(self, numer = 0, denom = 1):
         """Initialize a rational number with numerator and denominator.
-        The default rational number is zero (0 / 1).
+        The default rational number is zero (0/1).
         """
         if denom == 0:
             raise ZeroDivisionError("integer division or modulo by zero")
-        self.numer = numer
-        self.denom = denom
+        self.__numerator   = numer
+        self.__denominator = denom
+        self.simplify()
 
     def simplify(self):
         """Simplify the rational to a proper fraction."""
         # Compute the greatest common divisor of numerator and denominator.
-        # If one of the attributes numer and denom does not exist, return.
+        # If one of the attributes numerator and denominator does not
+        # exist, return.
         try:
-            factor = gcd(self.numer, self.denom)
+            factor = gcd(self.__numerator, self.__denominator)
         except AttributeError:
             return
         
-        # Here we use __dict__ directly, because we cannot use assignment
-        # statements inside method `simplify` (or it will throw recursion
-        # error).
         if sys.version_info[0] < 3:
-            self.__dict__['numer'] /= factor
-            self.__dict__['denom'] /= factor
+            self.__numerator /= factor
+            self.__denominator /= factor
         else:
-            self.__dict__['numer'] = int(self.numer / factor)
-            self.__dict__['denom'] = int(self.denom / factor)
+            self.__numerator = int(self.__numerator / factor)
+            self.__denominator = int(self.__denominator / factor)
 
     @property
     def numerator(rat):
-        return rat.numer
+        return rat.__numerator
+
+    @numerator.setter
+    def numerator(rat, numer):
+        rat.__numerator = numer
+        rat.simplify()
 
     @property
     def denominator(rat):
-        return rat.denom
+        return rat.__denominator
+
+    @denominator.setter
+    def denominator(rat, denom):
+        if denom == 0:
+            raise ZeroDivisionError("integer division or modulo by zero")
+        rat.__denominator = denom
+        rat.simplify()
 
     def __repr__(self):
         """Print method"""
         # Print all attributes of this interval
-        ostr = "%d/%d" % \
-               (self.numer, self.denom)
-        return ostr
-    
-    def __setattr__(self, name, value):
-        """Overload attribute set method."""
-        if name == 'denom' and value == 0:
-            raise ZeroDivisionError("integer division or modulo by zero")
-        self.__dict__[name] = value
-        self.simplify()
+        _repr_str = '%s/%s' % \
+                    (self.__numerator, self.__denominator)
+        return _repr_str
 
+    def _operator_fallbacks(monomorphic_operator, fallback_operator):
+
+        def forward(a, b):
+            if isinstance(b, (int, Rational)):
+                return monomorphic_operator(a, b)
+            elif isinstance(b, float):
+                return fallback_operator(float(a), b)
+            elif isinstance(b, complex):
+                return fallback_operator(complex(a), b)
+            else:
+                return NotImplemented
+        forward.__name__ = '__' + fallback_operator.__name__ + '__'
+        forward.__doc__ = monomorphic_operator.__doc__
+
+        def reverse(b, a):
+            if isinstance(a, Rational):
+                # Includes ints.
+                return monomorphic_operator(a, b)
+            elif isinstance(a, numbers.Real):
+                return fallback_operator(float(a), float(b))
+            elif isinstance(a, numbers.Complex):
+                return fallback_operator(complex(a), complex(b))
+            else:
+                return NotImplemented
+        reverse.__name__ = '__r' + fallback_operator.__name__ + '__'
+        reverse.__doc__ = monomorphic_operator.__doc__
+
+        return forward, reverse
+    
     def __eq__(self, rat):
         """Equality determination"""
-        return self.numer == rat.numer and self.denom == rat.denom
+        return self.numerator == rat.numerator and \
+            self.denominator == rat.denominator
 
-    def __add__(self, rat):
+    def _add(self, rat):
         """Addition of rational numbers"""
-        try:
-            new_rat = Rational(self.denom * rat.numer + \
-                               self.numer * rat.denom,
-                               self.denom * rat.denom)
-        except AttributeError:
-            new_rat = Rational(self.denom 
+        return Rational(self.denominator * rat.numerator + \
+                        self.numerator * rat.denominator,
+                        self.denominator * rat.denominator)
 
-    def __sub__(self, rat):
+    __add__, __radd__ = _operator_fallbacks(_add, operator.add)
+
+    def _sub(self, rat):
         """Subtraction of rational numbers"""
-        return Rational(self.numer * rat.denom - self.denom * rat.numer,
-                        self.denom * rat.denom)
+        return Rational(self.numerator * rat.denominator - \
+                        self.denominator * rat.numerator,
+                        self.denominator * rat.denominator)
 
-    def __mul__(self, rat):
+    __sub__, __rsub__ = _operator_fallbacks(_sub, operator.sub)
+
+    def _mul(self, rat):
         """Multiplication of rational numbers"""
-        return Rational(self.numer * rat.numer,
-                        self.denom * rat.denom)
+        return Rational(self.numerator * rat.numerator,
+                        self.denominator * rat.denominator)
 
-    def rdiv_interval(self, num):
-        """A rational divides a rational"""
-        return Rational(num * self.denom, self.numer)
+    __mul__, __rmul__ = _operator_fallbacks(_mul, operator.mul)
+
 
     def div_interval(self, rat):
         """A rational divides a rational"""
-        return Rational(self.numer * rat.denom, self.denom * rat.numer)
+        return Rational(self.numerator * rat.denominator, \
+                        self.denominator * rat.numerator)
 
-    # Here we check the current python version. If the current Python
-    # environment is Python 3.x, we need to overload __rtruediv__ and
-    # __truediv__ instead of __rdiv__ and __div__. However, in Python 2.x,
-    # __rdiv__ and __div__ need to be overloaded to implement division
-    # overloading.
-    #
-    # The old Python 2 `/` operator is replaced by the Python 3 behaviour
-    # with the `from __future__` import, but here we do not import it.
-    # In Python 3, all numeric division with operator `/` results in a
-    # float result while it does not do that in Python 2.
-    if sys.version_info[0] >= 3:
-        __rtruediv__ = rdiv_interval
-        __truediv__  =  div_interval
-    else:
-        __rdiv__ = rdiv_interval
-        __div__  =  div_interval
+    __truediv__, __rtruediv__ = _operator_fallbacks(_div, \
+                                                    operator.truediv)
+    __div__, __rdiv__ = _operator_fallbacks(_div, operator.div)
     
     
 
