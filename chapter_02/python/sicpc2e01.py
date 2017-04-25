@@ -10,7 +10,6 @@
 
 import sys
 import math
-import numbers
 import operator
 
 ## Check the python version
@@ -82,9 +81,8 @@ class Rational:
         using Rational.from_float(0.7) but Rational(7, 10) is able to
         do such a thing.
         """
-        if isinstance(f, numbers.Integral):
-            # The case where f is an interger. The abstract base class
-            # numbers.Integral help us to detect the type of f.
+        if isinstance(f, int):
+            # The case where f is an interger.
             return Rational(f, 1)
         elif not isinstance(f, float):
             # The case where f is not a float number
@@ -153,13 +151,63 @@ class Rational:
 
     def __repr__(self):
         """Print method"""
-        # Print all attributes of this interval
+        # Print all attributes of this interval.
+        # For example, print rational number Rational(5,10), you get 1/2.
         _repr_str = '%s/%s' % \
                     (self.__numerator, self.__denominator)
         return _repr_str
 
     def _operator_fallbacks(monomorphic_operator, fallback_operator):
+        """Generates forward and reverse operators given a purely-rational
+        operator and a function from the operator module.
 
+        This function is inspired by the builtin module fractions.py.
+        To locate this file fractions.py, you can enter python env by
+        typing `python -v`, and then `from fractions import Fraction`.
+        The interpreter will tell you the path of this fractions module.
+
+        We want our __add__, __sub__, __mul__ and __div__ are all able to
+        do arithmetic operations with different types of arguments. For
+        example, given r = Rational(5, 10) (which means r == 1/2), we want
+        to implement the following additions:
+        
+            r + r = 1/1
+            r + 1 = 3/2
+            r + 1.5 = 2.0
+            r + (1.2 + 5j) = 1.7 + 5j
+            1 + r = 3/2
+            (1.2 + 5j) + r = 1.7 + 5j
+
+        Of course the following methods are available but we still want
+        much more simple definitions for subtraction, multiplication and
+        division.
+        
+            def __add__(self, rat):
+                if isinstance(rat, (int, Rational)):
+                    return Rational(self.numerator * rat.denominator +
+                                    rat.numerator * self.denominator,
+                                    self.denominator * rat.denominator)
+                elif isinstance(other, float):
+                    return self.to_float() + other
+                elif isinstance(other, complex):
+                    return self.to_complex() + other
+                return NotImplemented
+
+            def __radd__(self, other):
+                if isinstance(other, int):
+                    return Rational(self.numerator * other.denominator +
+                                    other.numerator * self.denominator,
+                                    self.denominator * other.denominator)
+                elif isinstance(other, float):
+                    return other + self.to_float()
+                elif isinstance(other, complex):
+                    return other + self.to_complex()
+                return NotImplemented
+
+        Thus we generate forward and reverse operators for __add__ and
+        __radd__ (or subtraction or other). Here `operator` module is
+        needed.
+        """
         def forward(a, b):
             if isinstance(b, (int, Rational)):
                 return monomorphic_operator(a, b)
@@ -173,13 +221,12 @@ class Rational:
         forward.__doc__ = monomorphic_operator.__doc__
 
         def reverse(b, a):
-            if isinstance(a, numbers.Rational):
-                # Includes ints.
+            if isinstance(a, int):
                 return monomorphic_operator(a, b)
-            elif isinstance(a, numbers.Real):
-                return fallback_operator(float(a), b.to_float())
-            elif isinstance(a, numbers.Complex):
-                return fallback_operator(complex(a), b.to_complex())
+            elif isinstance(a, float):
+                return fallback_operator(a, b.to_float())
+            elif isinstance(a, complex):
+                return fallback_operator(a, b.to_complex())
             else:
                 return NotImplemented
         reverse.__name__ = '__r' + fallback_operator.__name__ + '__'
@@ -221,9 +268,11 @@ class Rational:
         return Rational(self.numerator * rat.denominator, \
                         self.denominator * rat.numerator)
 
-    __truediv__, __rtruediv__ = _operator_fallbacks(_div, \
-                                                    operator.truediv)
-    #__div__, __rdiv__ = _operator_fallbacks(_div, operator.div)
+    if sys.version_info[0] < 3:
+        __div__, __rdiv__ = _operator_fallbacks(_div, operator.div)
+    else:
+        __truediv__, __rtruediv__ = _operator_fallbacks(_div, \
+                                                        operator.truediv)
     
     
 
