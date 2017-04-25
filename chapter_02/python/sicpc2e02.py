@@ -19,6 +19,7 @@
 
 import sys
 import math
+import copy
 
 # Check the python version
 # Write different code for different python version
@@ -73,6 +74,14 @@ class Point2d:
         """Print method"""
         return '(%s, %s)' % (self.__x, self.__y)
 
+    def __copy__(self):
+        """Copy this point"""
+        return self.__class__(self.__x, self.__y)
+    
+    def __deepcopy__(self, memo):
+        """Deepcopy this rational number."""
+        return self.__class__(self.__x, self.__y)
+
 # Define segment class
 class Segment:
     """This class implements segments over R x R set.
@@ -83,7 +92,28 @@ class Segment:
 
     def __init__(self, start, end):
         """Initialize a segment with its start point and end point.
-        Here parameter start and end must be type `Point_2d`
+        Here parameter start and end must be type `Point_2d`.
+
+        Notice that the type of start and end are both Point_2d, here the
+        assignment means the segment is binded with the input arguments.
+        For example, there exists two points:
+
+            p1 = Point2d(5, 7)
+            p2 = Point2d(3, 9)
+
+        And the segment is constructed by:
+        
+            s = Segment(p1, p2)
+
+        Then the start point of s is binded with p1 and the end point of s
+        is binded with p2, which means, if you change the coordinates of
+        p1 or p2, the segment s will also changes. To prevent binding, you
+        can construct the segment by:
+
+            import copy
+            s = Segment(copy(p1), copy(p2))
+
+        And use property to change the segment.
         """
         if not (isinstance(start, Point2d) and \
                 isinstance(end, Point2d)):
@@ -97,19 +127,50 @@ class Segment:
     def start(segment):
         return segment.__start
 
+    @start.setter
+    def start(segment, new_start):
+        if not isinstance(new_start, Point2d):
+            raise TypeError("cannot initialize segment with endpoints "
+                            "in wrong type: %s." % \
+                            type(new_start).__name__)
+        segment.__start = new_start
+
     @property
     def end(segment):
         return segment.__end
 
+    @end.setter
+    def end(segment, new_end):
+        if not isinstance(new_end, Point2d):
+            raise TypeError("cannot initialize segment with endpoints "
+                            "in wrong type: %s." % \
+                            type(new_end).__name__)
+        segment.__end = new_end
+
+    def show(self):
+        print(self.__start)
+        print(self.start)
+        print(self.__end)
+        print(self.end)
+
     def __repr__(self):
         """Print method"""
         return '(%s, %s) -- (%s, %s)' % \
-            (self.__start.x, self.__start.y, self.__end.x, self.__end.y)
+            (self.start.x, self.start.y, self.end.x, self.end.y)
 
     def midpoint(self):
         """Compute the midpoint of this segment."""
         return Point2d((self.start.x + self.end.x) / 2,
                        (self.start.y + self.end.y) / 2)
+
+    def __copy__(self):
+        """Copy this segment"""
+        return self.__class__(self.__start, self.__end)
+    
+    def __deepcopy__(self, memo):
+        """Deepcopy this segment."""
+        return self.__class__(copy.copy(self.__start), \
+                              copy.copy(self.__end))
 
     
     

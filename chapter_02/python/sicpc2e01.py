@@ -235,12 +235,12 @@ class Rational:
         return forward, reverse
     
     def __eq__(self, rat):
-        """Equality determination"""
+        """Equality determination."""
         return self.numerator == rat.numerator and \
             self.denominator == rat.denominator
 
     def _add(self, rat):
-        """Addition of rational numbers"""
+        """Addition of rational numbers."""
         return Rational(self.denominator * rat.numerator + \
                         self.numerator * rat.denominator,
                         self.denominator * rat.denominator)
@@ -248,7 +248,7 @@ class Rational:
     __add__, __radd__ = _operator_fallbacks(_add, operator.add)
 
     def _sub(self, rat):
-        """Subtraction of rational numbers"""
+        """Subtraction of rational numbers."""
         return Rational(self.numerator * rat.denominator - \
                         self.denominator * rat.numerator,
                         self.denominator * rat.denominator)
@@ -256,7 +256,7 @@ class Rational:
     __sub__, __rsub__ = _operator_fallbacks(_sub, operator.sub)
 
     def _mul(self, rat):
-        """Multiplication of rational numbers"""
+        """Multiplication of rational numbers."""
         return Rational(self.numerator * rat.numerator,
                         self.denominator * rat.denominator)
 
@@ -264,7 +264,7 @@ class Rational:
 
 
     def _div(self, rat):
-        """A rational divides a rational"""
+        """A rational divides a rational."""
         return Rational(self.numerator * rat.denominator, \
                         self.denominator * rat.numerator)
 
@@ -273,6 +273,13 @@ class Rational:
     else:
         __truediv__, __rtruediv__ = _operator_fallbacks(_div, \
                                                         operator.truediv)
+
+    def __copy__(self):
+        """Copy this rational number."""
+        return self.__class__(self.__numerator, self.__denominator)
     
-    
+    def __deepcopy__(self, memo):
+        """Deepcopy this rational number."""
+        return self.__class__(self.__numerator, self.__denominator)
+
 
