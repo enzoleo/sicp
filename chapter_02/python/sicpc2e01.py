@@ -19,6 +19,20 @@ if sys.version_info[0] < 3:
     # Use new type class
     __metaclass__ = type
 
+    # Define functions to detect nan and infty value
+    def isnan(a):
+        """Check whether a is nan."""
+        return a != a
+
+    def isinf(a):
+        """Check whether a is infty."""
+        infty = float('inf')
+        return (a == infty or a == -infty)
+
+else:
+    isnan = math.isnan
+    isinf = math.isinf
+
 # Calculate the greatest common divisor of two numbers.
 def gcd(a, b):
     """Calculate the Greatest Common Divisor of a and b.
@@ -57,11 +71,43 @@ class Rational:
         self.__denominator = denom
         self.simplify()
 
+    @classmethod
+    def from_float(self, f):
+        """Converts a finite float number to a rational number and return
+        a Rational instance.
+
+        Here we use as_interger_ratio() method in float module to convert
+        a float number, thus the result is possible to be inaccurate. For
+        example, you cannot get a rational number 7/10 from a float 0.7
+        using Rational.from_float(0.7) but Rational(7, 10) is able to
+        do such a thing.
+        """
+        if isinstance(f, numbers.Integral):
+            # The case where f is an interger. The abstract base class
+            # numbers.Integral help us to detect the type of f.
+            return Rational(f, 1)
+        elif not isinstance(f, float):
+            # The case where f is not a float number
+            raise TypeError("Rational.from_float() cannot take %r as an "
+                            "argument because of wrong type: %s" % \
+                            (f, type(f).__name__))
+        if isnan(f) or isinf(f):
+            raise TypeError("Cannot convert %r to Rational type." % f)
+        return Rational(*f.as_integer_ratio())
+
+    def to_float(self):
+        """Converts a rational number to a float number."""
+        return 1.0 * self.numerator / self.denominator
+
+    def to_complex(self):
+        """Converts a rational number to a complex number."""
+        return complex(1.0 * self.numerator / self.denominator, 0)
+
     def simplify(self):
         """Simplify the rational to a proper fraction."""
-        # Compute the greatest common divisor of numerator and denominator.
-        # If one of the attributes numerator and denominator does not
-        # exist, return.
+        # Compute the greatest common divisor of numerator and
+        # denominator. If one of the attributes numerator and denominator
+        # does not exist, return.
         try:
             factor = gcd(self.__numerator, self.__denominator)
         except AttributeError:
@@ -94,6 +140,17 @@ class Rational:
         rat.__denominator = denom
         rat.simplify()
 
+    @property
+    def fraction(rat):
+        return rat.__numerator, rat.__denominator
+
+    @fraction.setter
+    def fraction(rat, frac):
+        if frac[1] == 0:
+            raise ZeroDivisionError("integer division or modulo by zero")
+        rat.__numerator, rat.__denominator = frac
+        rat.simplify()
+
     def __repr__(self):
         """Print method"""
         # Print all attributes of this interval
@@ -107,22 +164,22 @@ class Rational:
             if isinstance(b, (int, Rational)):
                 return monomorphic_operator(a, b)
             elif isinstance(b, float):
-                return fallback_operator(float(a), b)
+                return fallback_operator(a.to_float(), b)
             elif isinstance(b, complex):
-                return fallback_operator(complex(a), b)
+                return fallback_operator(a.to_complex(), b)
             else:
                 return NotImplemented
         forward.__name__ = '__' + fallback_operator.__name__ + '__'
         forward.__doc__ = monomorphic_operator.__doc__
 
         def reverse(b, a):
-            if isinstance(a, Rational):
+            if isinstance(a, numbers.Rational):
                 # Includes ints.
                 return monomorphic_operator(a, b)
             elif isinstance(a, numbers.Real):
-                return fallback_operator(float(a), float(b))
+                return fallback_operator(float(a), b.to_float())
             elif isinstance(a, numbers.Complex):
-                return fallback_operator(complex(a), complex(b))
+                return fallback_operator(complex(a), b.to_complex())
             else:
                 return NotImplemented
         reverse.__name__ = '__r' + fallback_operator.__name__ + '__'
@@ -159,14 +216,14 @@ class Rational:
     __mul__, __rmul__ = _operator_fallbacks(_mul, operator.mul)
 
 
-    def div_interval(self, rat):
+    def _div(self, rat):
         """A rational divides a rational"""
         return Rational(self.numerator * rat.denominator, \
                         self.denominator * rat.numerator)
 
     __truediv__, __rtruediv__ = _operator_fallbacks(_div, \
                                                     operator.truediv)
-    __div__, __rdiv__ = _operator_fallbacks(_div, operator.div)
+    #__div__, __rdiv__ = _operator_fallbacks(_div, operator.div)
     
     
 
