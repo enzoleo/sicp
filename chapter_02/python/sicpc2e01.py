@@ -93,11 +93,15 @@ class Rational:
             raise TypeError("Cannot convert %r to Rational type." % f)
         return Rational(*f.as_integer_ratio())
 
-    def to_float(self):
+    def __int__(self):
+        """Converts a rational number to an integer."""
+        return abs(self.numerator) // self.denominator
+
+    def __float__(self):
         """Converts a rational number to a float number."""
         return 1.0 * self.numerator / self.denominator
 
-    def to_complex(self):
+    def __complex__(self):
         """Converts a rational number to a complex number."""
         return complex(1.0 * self.numerator / self.denominator, 0)
 
@@ -188,9 +192,9 @@ class Rational:
                                     rat.numerator * self.denominator,
                                     self.denominator * rat.denominator)
                 elif isinstance(other, float):
-                    return self.to_float() + other
+                    return float(self) + other
                 elif isinstance(other, complex):
-                    return self.to_complex() + other
+                    return complex(self) + other
                 return NotImplemented
 
             def __radd__(self, other):
@@ -199,9 +203,9 @@ class Rational:
                                     other.numerator * self.denominator,
                                     self.denominator * other.denominator)
                 elif isinstance(other, float):
-                    return other + self.to_float()
+                    return other + float(self)
                 elif isinstance(other, complex):
-                    return other + self.to_complex()
+                    return other + complex(self)
                 return NotImplemented
 
         Thus we generate forward and reverse operators for __add__ and
@@ -212,9 +216,9 @@ class Rational:
             if isinstance(b, (int, Rational)):
                 return monomorphic_operator(a, b)
             elif isinstance(b, float):
-                return fallback_operator(a.to_float(), b)
+                return fallback_operator(float(a), b)
             elif isinstance(b, complex):
-                return fallback_operator(a.to_complex(), b)
+                return fallback_operator(complex(a), b)
             else:
                 return NotImplemented
         forward.__name__ = '__' + fallback_operator.__name__ + '__'
@@ -224,9 +228,9 @@ class Rational:
             if isinstance(a, int):
                 return monomorphic_operator(a, b)
             elif isinstance(a, float):
-                return fallback_operator(a, b.to_float())
+                return fallback_operator(a, float(b))
             elif isinstance(a, complex):
-                return fallback_operator(a, b.to_complex())
+                return fallback_operator(a, complex(b))
             else:
                 return NotImplemented
         reverse.__name__ = '__r' + fallback_operator.__name__ + '__'
