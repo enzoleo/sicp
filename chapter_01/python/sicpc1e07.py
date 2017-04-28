@@ -38,6 +38,10 @@ def sqrt_iter(init, x):
     """Compute the square root of x with initial value.
     Newton method is used here.
     """
+     if x < 0:
+        raise ValueError("negative number %s has no real square root." % x)
+    if x == 0:
+        return 0
     guess, new_guess = init, improve(init, x)
     while not good_enough(new_guess, guess):
         new_guess, guess = improve(new_guess, x), new_guess
