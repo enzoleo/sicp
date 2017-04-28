@@ -23,12 +23,6 @@ def improve(guess, x):
     """
     return average(guess, x * 1.0 / guess)
 
-# It is important to point out what we mean by `good enough`. Here we
-# give a simple illustration (but it is not really a very good test).
-# The idea is to improve the answer until it is close enough so that its
-# square differs from the radicand by less than a predetermined tolerance
-# (here 0.0001 is set)
-# See exercise_07.scm to get a better good-enough? test.
 def good_enough(new_guess, old_guess):
     return abs(new_guess - old_guess) * 1.0 / old_guess < 0.0001
 
