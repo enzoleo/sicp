@@ -4,11 +4,12 @@
 --
 
 -- Compute Ackermann numbers
-ackermann x y
-  | y == 0    = 0
-  | y == 1    = 2
-  | x == 0    = 2 * y
-  | otherwise = ackermann (x - 1) (ackermann x (y - 1))
+ackermann :: (Eq a, Integral a) => a -> a -> a
+ackermann x 0 = 0
+ackermann x 1 = 2
+ackermann 0 y = 2 * y
+ackermann x y =
+  ackermann (x - 1) (ackermann x (y - 1))
 
 -- What are the values of the following expressions?
 --

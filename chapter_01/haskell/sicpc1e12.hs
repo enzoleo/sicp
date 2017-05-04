@@ -17,13 +17,15 @@
 import qualified Data.Vector as V
                
 -- Compute combinarotial number by means of a recursive process
-recursive_pascal m n =
-  if m < 0 || n < 0 || m < n
-  then error "wrong number in pascal triangle."
-  else if n == 0 || n == m
-       then 1
-       else recursive_pascal (m - 1) (n - 1) +
-            recursive_pascal (m - 1) n
+recursive_pascal :: (Eq a, Integral a) => a -> a -> a
+recursive_pascal m 0 = 1
+recursive_pascal m n
+  | m < 0 ||
+    n < 0 ||
+    m < n     = error "wrong number in pascal triangle."
+  | n == m    = 1
+  | otherwise = recursive_pascal (m - 1) (n - 1) +
+                recursive_pascal (m - 1) n
 
 -- The procedure computes factorial numbers by means of an iterative
 -- process, with linear complexity.
@@ -56,11 +58,12 @@ factorial n = fact_iter 1 1 n
 --
 
 -- Computes the combinatorial numbers
+combinatorial :: (Eq a, Integral a) => a -> a -> a
 combinatorial m n =
   if (n * 2) > m
-  then (fact_iter 1 (n + 1) m) /
+  then (fact_iter 1 (n + 1) m) `div`
        (fact_iter 1 1 (m - n))
-  else (fact_iter 1 (m - n + 1) m) /
+  else (fact_iter 1 (m - n + 1) m) `div`
        (fact_iter 1 1 n)
 
 --
@@ -99,21 +102,22 @@ combinatorial m n =
 
 -- This function computes the next line (vector) in Pascal's triangle.
 -- For example, it returns [1,5,10,10,5,1] if the input is [1,4,6,4,1].
-pascal_updateVec :: V.Vector Int -> V.Vector Int
+pascal_updateVec :: (Eq a, Integral a) => V.Vector a -> V.Vector a
 pascal_updateVec vector =
   V.zipWith (+) (V.snoc vector 0) (V.cons 0 vector)
 
 -- This function computes the (n+1)-th line (vector) in Pascal's Triangle.
 -- For example, it returns [1,5,10,10,5,1] if the input is 5.
-pascalList :: Int -> V.Vector Int
+pascalList :: (Eq a, Integral a) => a -> V.Vector a
 pascalList n =
   let nextVec vector 0 = vector
       nextVec vector count =
         nextVec (pascal_updateVec vector) (count - 1)
-      v0 = V.fromList [1 :: Int]
+      v0 = V.fromList [1 :: Integral a => a]
       in nextVec v0 n
 
 -- The pascal number
 pascal n m = (pascalList n) V.! m
+
 
 
