@@ -4,14 +4,11 @@
 --
 
 -- Compute Ackermann numbers
-ackermann x y =
-  if y == 0
-  then 0
-  else if y == 1
-       then 2
-       else if x == 0
-            then 2 * y
-            else ackermann (x - 1) (ackermann x (y - 1))
+ackermann x y
+  | y == 0    = 0
+  | y == 1    = 2
+  | x == 0    = 2 * y
+  | otherwise = ackermann (x - 1) (ackermann x (y - 1))
 
 -- What are the values of the following expressions?
 --

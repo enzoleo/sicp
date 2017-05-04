@@ -27,15 +27,13 @@ goodEnough newGuess oldGuess =
 -- Compute the square root of x with initial value.
 -- Newton method is used here.
 sqrt_iter :: Float -> Float -> Float
-sqrt_iter guess x =
-  if x < 0
-  then error "negative number has no real square root."
-  else if x == 0
-       then 0
-       else let newGuess = improve guess x
-            in if goodEnough newGuess guess
-               then newGuess
-               else sqrt_iter (improve newGuess x) x
+sqrt_iter guess x
+  | x < 0 = error "negative number has no real square root."
+  | x == 0 = 0
+  | otherwise = let newGuess = improve guess x
+                in if goodEnough newGuess guess
+                   then newGuess
+                   else sqrt_iter (improve newGuess x) x
 
 
 

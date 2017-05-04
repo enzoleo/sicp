@@ -40,14 +40,11 @@ goodEnough guess x = abs (guess * guess - x) < 0.0001
 -- Compute the square root of x with initial value.
 -- Newton method is used here.
 sqrt_iter :: Float -> Float -> Float
-sqrt_iter guess x =
-  if x < 0
-  then error "negative number has no real square root."
-  else if x == 0
-       then 0
-       else if goodEnough guess x
-            then guess
-            else sqrt_iter (improve guess x) x
+sqrt_iter guess x
+  | x < 0              = error "negative number has no real square root."
+  | x == 0             = 0
+  | goodEnough guess x = guess
+  | otherwise          = sqrt_iter (improve guess x) x
 
 
 
