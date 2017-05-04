@@ -32,9 +32,9 @@ showFib n =
           phi ^ m / sqrt 5
         singleShow m 0 = return ()
         singleShow m count =
-          do putStrLn ("fibonacci(" ++ (show m) ++ ") \t" ++
+          do putStrLn ("fibonacci(" ++ show m ++ ") \t" ++
                        (show $ fib m) ++ "  \tphi-expt(" ++
-                       (show m) ++ ") \t" ++ (show $ phiExpt m))
+                       show m ++ ") \t" ++ (show $ phiExpt m))
              singleShow (m + 1) (count - 1)
     in singleShow 1 n
 
