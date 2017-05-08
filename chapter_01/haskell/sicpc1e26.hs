@@ -1,10 +1,12 @@
--- The solution of exercise 1.24
--- Modify the `timed-prime-test` procedure of exercise 1.22 to use
--- `fast-prime?` (the Fermat method), and test each of the 12 primes you
--- found in that exercise. Since the Fermat test has O(log n) growth, how
--- would you expect the time to test primes near 1,000,000 to compare with
--- the time needed to test primes near 1000? Do your data bear this out?
--- Can you explain any discrepancy you find?
+-- The solution of exercise 1.26
+-- Louis Reasoner is having great difficulty doing exercise 1.24. His
+-- `fast-prime?` test seems to run more slowly than his `prime?` test.
+-- Louis calls his friend over to help. When they examine Louis's code,
+-- they find that he has rewritten the expmod procedure to use an explicit
+-- multiplication, rather than calling `square`.
+--
+-- His friend found that by writing the procedure like that, he transformed
+-- the O(log n) process into a O(n) process. Explain.
 --
 -- -------- (above from SICP)
 --
@@ -13,31 +15,15 @@ import System.Random
 -- Run 'cabal install vector' first!
 import qualified Data.Vector as V
 
--- Square function
-square x = x * x
-
--- To implement the Fermat test, we need a procedure that computes the
--- exponential of a number modulo another number
+-- The modified `expmod` procedure
 expmod :: (Integral a) => a -> a -> a -> a
 expmod base 0 m = 1
 expmod base exp m =
   case (mod exp 2)
-  of 0 -> mod (square $ expmod base (div exp 2) m) m
+  of 0 -> mod (expmod base (div exp 2) m * expmod base (div exp 2) m) m
      1 -> mod (base * expmod base (exp - 1) m) m
 
---
--- It is not easy to generate random numbers. Usually random numbers can
--- be generated easily in IO action but here we prefer the methods much
--- more purely. The following `fastPrime` function chooses a random number
--- between 1 and n - 1 and check if it satisfies `expmod base n n == base`
--- for @times times, here an init generator needed, such as (mkStdGen 0).
---
--- Choose a random number between 1 and n - 1 using the procedure `random`,
--- which we assume is included as a primitive in Haskell. The following
--- procedure runs the test a given number of times, as specified by a
--- parameter. Its value is true if the test succeeds every time, and false
--- otherwise.
---
+-- Fast prime test algorithm using Fermat test
 fastPrime :: (Integral a, Random a, RandomGen g) => a -> a -> g -> Bool
 fastPrime n 0 initGen = True
 fastPrime n times initGen =
@@ -119,20 +105,20 @@ computeRuntime n m = do
   print $ diffUTCTime stop start
 
 --
--- Actually the expectation is not confirmed. Because the runtime is
--- determined by many factors: the occupation of system resources, the
--- optimization of interpreter of compiler, etc. We can not predict the
--- runtime of one procedure precisely.
+-- The most important point is the `expmod` procedure.
+-- The original `expmod` reduces the computation time when @exp is even.
+-- But the `expmod` by Louis computes (expmod base (/ exp 2) m) twice for
+-- every number no matter it is odd or even.
 --
--- *Main> computeRuntime 100000000000000 1000
--- 100000000033471
--- 8.714681s
--- *Main> computeRuntime 100000000000000000 1000
--- 100000000000039747
--- 11.962826s
--- *Main> computeRuntime 100000000000000000000 1000
--- 100000000000000048591
--- 16.974275s
+-- *Main> computeRuntime 1000 3
+-- 1019
+-- 0.334079s
+-- *Main> computeRuntime 10000 3
+-- 10037
+-- 4.761439s
+-- *Main> computeRuntime 100000 3
+-- 100043
+-- 45.399814s
 --
 
 

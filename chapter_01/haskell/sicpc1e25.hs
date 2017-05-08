@@ -86,8 +86,8 @@ nextPrimesNum :: (Integral a, Random a) => a -> a -> a
 nextPrimesNum n m =
   let searchPrimeCount init counter maxCount =
         if counter < maxCount
-        then do let newPrime = nextPrime init
-                searchPrimeCount newPrime (counter + 1) maxCount
+        then let newPrime = nextPrime init
+             in searchPrimeCount newPrime (counter + 1) maxCount
         else init
   in searchPrimeCount n 0 m
 
