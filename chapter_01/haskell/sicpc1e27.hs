@@ -83,11 +83,11 @@ isCarmichael :: (Integral a) => a -> Bool
 isCarmichael 1 = False
 isCarmichael n =
   let iter m 1 oldSd = True
-      iter m n oldSd =
-        let sd = smallestDivisor n
+      iter m num oldSd =
+        let sd = smallestDivisor num
         in if sd == oldSd || mod (m - 1) (sd - 1) /= 0
            then False
-           else let next = div n sd
+           else let next = div num sd
                 in iter m next sd
   in iter n n n
 
