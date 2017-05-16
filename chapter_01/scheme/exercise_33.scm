@@ -88,7 +88,7 @@
   (display "(square-prime-sum 106 300) = ")
   (display (square-prime-sum 106 300)) (newline)
   (display "(coprime-product 30) = ")
-  (display (coprime-product 18))
+  (display (coprime-product 30))
   (newline))
 
 (main)
