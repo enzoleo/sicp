@@ -73,11 +73,11 @@
 ;;
 (define (runtime) (tms:clock (times)))
 
-;; Compute the runtime of @search-for-next-primes
-(define (wallis-runtime n)
+;; Compute the runtime of @wallis-pi and @wallis-pi-rec
+(define (wallis-runtime func n)
   (define (clause-runtime start-time)
     (display "PI: ")
-    (display (wallis-pi n))
+    (display (func n))
     (newline)
     (display "runtime: ")
     (display (- (runtime) start-time))
