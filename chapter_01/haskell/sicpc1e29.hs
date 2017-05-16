@@ -20,16 +20,19 @@
 --
 
 -- Compute cube of a number
+cube :: Num a => a -> a
 cube x = x ^ 3
 
 -- We write a procedure that expresses the concept of summation itself
 -- rather than only procedures that compute particular sums.
+sigmaSum :: (Num a, Ord b) => (b -> a) -> b -> (b -> b) -> b -> a
 sigmaSum term a next b =
   if a > b
   then 0
   else term a + sigmaSum term (next a) next b
 
 -- The simpson integral procedure
+simpson :: (Fractional a, Ord a) => (a -> a) -> a -> a -> a -> a
 simpson f a b n =
   let h = (b - a) / n
       iter k = f (a + k * h)
@@ -39,6 +42,7 @@ simpson f a b n =
                2 * sigmaSum iter 2 next (n - 2))
 
 -- The integral computation procedure above
+integral :: (Fractional a, Ord a) => (a -> a) -> a -> a -> a -> a
 integral f a b dx =
   dx * sigmaSum f (a + dx / 2) (\x -> x + dx) b
 
