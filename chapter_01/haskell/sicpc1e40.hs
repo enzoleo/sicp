@@ -17,14 +17,17 @@ dx = 0.00001
 tolerance = 0.00001
 
 -- Numerical differentiation
+deriv :: (Double -> Double) -> Double -> Double
 deriv f =
   \x -> (f (x + dx) - f x) / dx
 
 -- Newton transformation
+newtonTransform :: (Double -> Double) -> Double -> Double
 newtonTransform f =
   \x -> x - f x / (deriv f) x 
 
 -- Fix-point computation procedure
+fixedPoint :: (Double -> Double) -> Double -> Double
 fixedPoint f firstGuess =
   let closeEnough v1 v2 =
         abs (v1 - v2) < tolerance
@@ -37,14 +40,17 @@ fixedPoint f firstGuess =
   in try firstGuess 1
 
 -- Newton's method to search fixed point
+newtonMethod :: (Double -> Double) -> Double -> Double
 newtonMethod f guess =
   fixedPoint (newtonTransform f) guess
 
 -- Define a cubic polynomial function
+cubic :: Num a => a -> a -> a -> a -> a
 cubic a b c =
   \x -> x * x * x + a * x * x + b * x + c
 
 -- Root a cubic equation x ^ 3 + a * x ^ 2 + b * x + c = 0
+cubicEqRoot :: Double -> Double -> Double -> Double
 cubicEqRoot a b c =
   newtonMethod (cubic a b c) 1.0
 
