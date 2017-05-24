@@ -21,8 +21,11 @@
 --
 
 -- Necessary functions
+square :: Num a => a -> a
 square x = x * x
 
+-- Repeated function
+repeated :: (Eq a, Num a) => (b -> b) -> a -> b -> b
 repeated f n =
   let repf x
         | n == 0    = x
