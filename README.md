@@ -1,7 +1,7 @@
 # sicp
 ![License](https://img.shields.io/github/license/enzoleo/sicp.svg?color=black)
 
-Solutions to ***Structure and Interpretation of Computer Programs*** (SICP) exercises in Common Lisp, Scheme and Python.
+Solutions to ***Structure and Interpretation of Computer Programs*** (SICP) exercises in Haskell, Common Lisp, Scheme and Python.
 
 ## Contents
 | Chapter                                  | Chapter Name                          |
